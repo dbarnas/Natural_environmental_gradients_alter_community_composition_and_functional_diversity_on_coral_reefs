@@ -1,11 +1,11 @@
 # Natural environmental gradients alter community composition and functional diversity on coral reefs
 
 
-Danielle M. Barnas1,2, Maya Zeff 2,3, Nyssa J. Silbiger2,4
-1University of Hawai'i at Mānoa, Hawai'i Institute of Marine Biology, Kaneohe, HI, United States
-2California State University Northridge, Department of Biology, Northridge, CA, United States
-3University of California Santa Cruz, Ecology and Evolutionary Biology, Santa Cruz, CA, United States
-4University of Hawai'i at Mānoa, Uehiro Center for the Advancement of Oceanography, Department of Oceanography, Honolulu, HI, United States
+Danielle M. Barnas(1,2), Maya Zeff(2,3), Nyssa J. Silbiger(2,4)  
+1University of Hawai'i at Mānoa, Hawai'i Institute of Marine Biology, Kaneohe, HI, United States  
+2California State University Northridge, Department of Biology, Northridge, CA, United States  
+3University of California Santa Cruz, Ecology and Evolutionary Biology, Santa Cruz, CA, United States  
+4University of Hawai'i at Mānoa, Uehiro Center for the Advancement of Oceanography, Department of Oceanography, Honolulu, HI, United States  
 
 Keywords: Functional diversity, submarine groundwater discharge
 
