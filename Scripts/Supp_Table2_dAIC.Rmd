@@ -1,0 +1,81 @@
+### Supplemental Table 2: Table of Delta corrected AIC values
+
+```{r, AICtable}
+###############################
+# LOAD LIBRARIES
+###############################
+library(tidyverse)
+library(here)
+library(kableExtra)
+
+
+###############################
+# READ IN DATA
+###############################
+modelTable <- read_csv(here("Output", "PaperFigures","Model_Selection_Table.csv"))
+#modelTable_rug <- read_csv(here("Output", "PaperFigures","Model_Selection_Table_rugosity.csv"))
+
+
+modTable <- modelTable %>%  
+  rename(pVal = pVal.P) %>% 
+  mutate(AICc = round(AICc, 1)) %>% 
+  mutate(delAICc = round(delAICc, 1)) %>% 
+  mutate(R2 = if_else(R2 > 0.1, round(R2,2), round(R2, 3))) %>% 
+  mutate(pVal = signif(pVal, 2)) %>% 
+  rename(Regression = Reg_Type,
+         p = pVal,
+         'Delta AICc' = delAICc) %>% 
+  separate(col=Parameter, into = c("Parameter", NA), sep = " +") %>% 
+  mutate(Parameter = if_else(Parameter == "Phosphate_umolL", "Phosphate", 
+                             if_else(Parameter == "Silicate_umolL", "Silicate",
+                                     if_else(Parameter == "NN_umolL", "Nitrate+Nitrite", Parameter)))) %>% 
+  mutate(Y = factor(Y, levels = c("NbSpP", "NbFEsP", "Vol8D", "resSpp", "resFEp", "resVol")),
+         Parameter = factor(Parameter,
+                            levels = c("Rugosity", "Phosphate", "Nitrate+Nitrite", "pH", "Salinity", "Silicate", "Temperature"))) %>% 
+                                       #"Phosphate:Rugosity", "Nitrate+Nitrite:Rugosity", "pH:Rugosity", "Salinity:Rugosity", "Silicate:Rugosity", "Temperature:Rugosity"))) %>% 
+  arrange(Y,Parameter) 
+```
+```{r}
+###############################
+# RAW DATA TABLE
+###############################
+AICtable <- modTable %>%
+  filter(Y== "NbSpP" | Y== "NbFEsP" | Y == "Vol8D") %>%
+  select(-Y) %>% 
+  kbl() %>% 
+  kable_classic(html_font = "Times New Roman",
+                font_size = 20) %>% 
+  row_spec(0, italic = TRUE, bold = TRUE) %>%  # header row
+  pack_rows("% SR", 1, 14) %>%
+  pack_rows("% FER", 15, 28) %>%
+  pack_rows("% FEV", 29, 42) %>%
+  column_spec(1:6, background = "white")
+
+AICtable
+```
+```{r, eval = FALSE}
+AICtable %>% 
+  as_image(file = here("Output", "Thesis_Figures_Output", "AICtable.png"))
+```
+```{r}
+###############################
+# RESIDUAL DATA TABLE
+###############################
+AICtable_residuals <- modTable %>%
+  filter(Y== "resSpp" | Y== "resFEp" | Y == "resVol") %>%
+  select(-Y) %>% 
+  kbl() %>% 
+  kable_classic(html_font = "Times New Roman",
+                font_size = 20) %>% 
+  row_spec(0, italic = TRUE, bold = TRUE) %>%  # header row
+  pack_rows("% SR (residuals)", 1, 14) %>%
+  pack_rows("% FER (residuals)", 15, 28) %>%
+  pack_rows("% FEV (residuals)", 29, 42) %>%
+  column_spec(1:6, background = "white")
+
+AICtable_residuals
+```
+```{r, eval = FALSE}
+AICtable_residuals %>% 
+  as_image(file = here("Output", "Thesis_Figures_Output", "AICtable_residuals.png"))
+```
