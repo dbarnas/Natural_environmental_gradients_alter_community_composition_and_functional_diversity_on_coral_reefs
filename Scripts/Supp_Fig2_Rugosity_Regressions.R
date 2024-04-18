@@ -24,12 +24,10 @@ Fric <- read_csv(here("Data", "Sp_FE_Vol.csv"))
 resFric <- read_csv(here("Data", "Sp_FE_Vol_res.csv"))
 meta <- read_csv(here("Data", "Full_Metadata.csv"))
 chem <- read_csv(here("Data","Biogeochem", "Nutrients_Processed_All.csv")) %>%
-  filter(Season == "Dry") %>%
-  filter(Location == "Varari", CowTagID != "V13") %>%
-  filter(CowTagID != "VSEEP") %>%
-  select(CowTagID, Parameters, CVSeasonal) %>%
-  pivot_wider(names_from = Parameters, values_from = CVSeasonal)
-alphatag <- read_csv(here("Data", "CowTag_to_AlphaTag.csv"))
+  filter(CowTagID != "V13",
+         CowTagID != "VSEEP") %>%
+  select(CowTagID, Parameters, CV) %>%
+  pivot_wider(names_from = Parameters, values_from = CV)
 
 
 ### Join Sp and FE and Vol4D with metadata
