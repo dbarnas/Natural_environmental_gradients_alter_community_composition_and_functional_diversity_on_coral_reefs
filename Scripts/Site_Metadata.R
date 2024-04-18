@@ -8,11 +8,12 @@ library(here)
 
 
 #### BRING IN DATA ####
-turb <- read_csv(here("Data", "Biogeochem", "July2022", "Turb_NC.csv"))
+turb <- read_csv(here("Data", "Biogeochem", "Turb_NC.csv"))
 dist <- read_csv(here("Data", "Plate_Distance_to_Seep.csv"))
 depth <- read_csv(here("Data", "Adj_Sandwich_Depth.csv"))
 sub <- read_csv(here("Data", "Surveys", "Substrate_2022.csv"))
 rug <- read_csv(here("Data","Surveys","Survey_Metadata.csv"))
+alpha <- read_csv(here("Data", "CowTag_to_AlphaTag.csv"))
 
 
 #### PROCESS DATA ####
@@ -36,7 +37,9 @@ metadata <- turb %>%
   full_join(dist) %>%
   full_join(depth) %>%
   full_join(rug) %>%
-  select(-c(Dist_CT_cm, Depth_cm, Tidal_diff))
+  select(-c(Dist_CT_cm, Depth_cm, Tidal_diff)) %>%
+  filter(Location == "Varari") %>%
+  full_join(alpha)
 
 write_csv(metadata, here("Data","Full_Metadata.csv"))
 
@@ -81,7 +84,7 @@ Description <- c("One of two coral reef survey sites (Cabral or Varari)",
                  "Percent cover of dead coral substrate",
                  "Percent cover of rubble substrate",
                  "Percent cover of sand substrate",
-                 "Latatitude of survey locations recorded on a Garmin GPS",
+                 "Latitude of survey locations recorded on a Garmin GPS",
                  "Longitude of survey locations recorded on a Garmin GPS",
                  "Linear distance from each survey location to the location labeled as SEEP",
                  "Ajusted distance (or depth) measured from water surface to HOBO Conductiity-Temperature logger sensor at each survey location using a transect tape. Corrected for tidal changes",

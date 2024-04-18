@@ -49,6 +49,6 @@ turb2 <- turb2 %>%
 Full_turb <- full_join(turb, turb2) %>%
   relocate(Location, .before = CowTagID)
 
-write_csv(Full_turb, here("Data","Biogeochem","July2022","Turb_NC.csv"))
+write_csv(Full_turb, here("Data","Biogeochem","Turb_NC.csv"))
 
 
