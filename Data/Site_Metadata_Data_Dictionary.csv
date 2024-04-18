@@ -1,0 +1,15 @@
+Attribute,Units,Description
+Location,NA,One of two coral reef survey sites (Cabral or Varari)
+CowTagID,NA,Individual survey location identifier (1-20 and a Seep location)
+del15N,unitless,Ratio of Nitrogen-15 / Nitrogen-14 from tissue samples of Turbinaria ornata at each survey location collected in July 2022
+C_N,unitless,Ratio of Carbon / Nitrogen from tissue samples of Turbinaria ornata at each survey location collected in July 2022
+N_percent,%,Percent of Nitrogen in tissue samples of Turbinaria ornata at each survey location collected in July 2022
+LiveCoral,%,Percent cover of live coral substrate
+DeadCoral,%,Percent cover of dead coral substrate
+Rubble,%,Percent cover of rubble substrate
+Sand,%,Percent cover of sand substrate
+lat,NA,Latitude of survey locations recorded on a Garmin GPS
+lon,NA,Longitude of survey locations recorded on a Garmin GPS
+dist_to_seep_m,meters (m),Linear distance from each survey location to the location labeled as SEEP
+adj_CT_depth_cm,centimeters (cm),Ajusted distance (or depth) measured from water surface to HOBO Conductiity-Temperature logger sensor at each survey location using a transect tape. Corrected for tidal changes
+meanRugosity,meters (m),"Average rugosity measured using a 2.03m link chain across 3 randomly chosen lines within the survey box of each survey location. Values range from 0-1, with 0 indicating higher substrate complexity and 1 indicating a flat surface"
