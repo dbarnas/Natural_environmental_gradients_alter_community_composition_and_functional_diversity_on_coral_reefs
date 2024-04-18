@@ -14,36 +14,23 @@ locations <- read_csv(here("Data", "Sandwich_Locations_Final.csv"))
 
 # isolate seep lat and lon at Varari
 seepData <- locations %>%
-  filter(Plate_Seep == 'Seep') %>%
+  filter(Plate_Seep == 'Seep',
+         Location == "Varari") %>%
   select(Location, lat, lon) %>%
   rename(lat_seep = lat,
          lon_seep = lon)
 
-# isolate single numeric value for lat and lon
-# VseepLat <- as.numeric(seepData$lat[1])
-# VseepLon <- as.numeric(seepData$lon[1])
-# CseepLat <- as.numeric(seepData$lat[2])
-# CseepLon <- as.numeric(seepData$lon[2])
 
 # select distinct points for each plate location to calculate distances
 distData <- locations %>%
   filter(Plate_Seep == 'Plate') %>%
+  filter(Location == "Varari") %>%
   select(Location, CowTagID, lat, lon) %>%
   distinct() %>%
   full_join(seepData)
 
 # find Haversine distances for each site
 Vdist <- distData %>%
-  filter(Location == "Varari") %>%
-  mutate(dist_to_seep_m = distHaversine(cbind(lon_seep, lat_seep), cbind(lon, lat))) %>%
-  # group by sample Site Number
-  group_by(CowTagID) %>%
-  # choose only minimum distances
-  slice(which.min(dist_to_seep_m)) %>%
-  select(-c(lat_seep, lon_seep))
-
-Cdist <- distData %>%
-  filter(Location == "Cabral") %>%
   mutate(dist_to_seep_m = distHaversine(cbind(lon_seep, lat_seep), cbind(lon, lat))) %>%
   # group by sample Site Number
   group_by(CowTagID) %>%
@@ -63,14 +50,13 @@ Vdist <- Vdist %>%
 
 # match seep point df with larger site df's
 seepData <- seepData %>%
-  mutate(CowTagID = c("VSEEP", "CSEEP"),
+  mutate(CowTagID = "VSEEP",
          dist_to_seep_m = 0) %>%
   rename(lat = lat_seep,
          lon = lon_seep)
 
-# bind all df's together
+# bind Vseep to distance data
 distData <- Vdist %>%
-  bind_rows(Cdist) %>%
   bind_rows(seepData)
 
 # write csv
