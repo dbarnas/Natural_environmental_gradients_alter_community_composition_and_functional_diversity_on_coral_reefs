@@ -25,12 +25,11 @@ Fric <- read_csv(here("Data", "Sp_FE_Vol.csv"))
 resFric <- read_csv(here("Data", "Sp_FE_Vol_res.csv"))
 meta <- read_csv(here("Data", "Full_Metadata.csv"))
 chem <- read_csv(here("Data","Biogeochem", "Nutrients_Processed_All.csv")) %>%
-  filter(Season == "Dry") %>%
-  filter(Location == "Varari", CowTagID != "V13") %>%
-  filter(CowTagID != "VSEEP") %>%
-  select(CowTagID, Parameters, CVSeasonal) %>%
-  pivot_wider(names_from = Parameters, values_from = CVSeasonal)
-alphatag <- read_csv(here("Data", "CowTag_to_AlphaTag.csv"))
+  filter(Location == "Varari",
+         CowTagID != "V13",
+         CowTagID != "VSEEP") %>%
+  select(CowTagID, Parameters, CV) %>%
+  pivot_wider(names_from = Parameters, values_from = CV)
 
 
 ### Join Sp and FE and Vol4D with metadata
@@ -39,7 +38,6 @@ reg.Fric <- resFric %>%
   left_join(meta) %>%
   filter(CowTagID != "VSEEP" &
            CowTagID != "V13") %>%
-
   mutate(meanRugosity = 1-meanRugosity)
 
 
@@ -195,7 +193,7 @@ AICplotres <- modelTableData %>%
 
 
 AICplotAll <- AICplot / AICplotres +
-  plot_annotation(tag_levels = "A") +
+  #plot_annotation(tag_levels = "A") +
   plot_layout(guides = 'collect') & theme(legend.position = 'top')
 AICplotAll
 
@@ -203,7 +201,7 @@ AICplotAll
 
 ggsave(here("Output", "PaperFigures", "Fig2_AIC_model_selection.png"), AICplotAll, width = 6, height = 6, device = "png")
 
-ggsave(here("Output", "PaperFigures", "AICplot_long.png"), AICplot, width = 4, height = 5, device = "png")
-ggsave(here("Output", "PaperFigures", "AICplotres_long.png"), AICplotres, width = 4, height = 5, device = "png")
+#ggsave(here("Output", "PaperFigures", "AICplot_long.png"), AICplot, width = 4, height = 5, device = "png")
+#ggsave(here("Output", "PaperFigures", "AICplotres_long.png"), AICplotres, width = 4, height = 5, device = "png")
 
 
