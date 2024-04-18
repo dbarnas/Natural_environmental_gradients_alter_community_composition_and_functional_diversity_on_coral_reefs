@@ -20,17 +20,12 @@ library(PNWColors)
 library(patchwork)
 
 ##### READ IN DATA #####
-alphatag <- read_csv(here("Data", "CowTag_to_AlphaTag.csv"))
 meta <- read_csv(here("Data", "Full_Metadata.csv")) %>%
-  left_join(alphatag) %>%
-  filter(Location == "Varari",
-         CowTagID != "V13")
+  filter(CowTagID != "V13")
 allchem <- read_csv(here("Data","Biogeochem", "Nutrients_Processed_All.csv")) %>%
-  filter(Season == "Dry") %>%
-  filter(Location == "Varari",
-         CowTagID != "V13") %>%
-  select(CowTagID, Parameters, CVSeasonal) %>%
-  pivot_wider(names_from = Parameters, values_from = CVSeasonal)
+  filter(CowTagID != "V13") %>%
+  select(CowTagID, Parameters, CV) %>%
+  pivot_wider(names_from = Parameters, values_from = CV)
 V_kml <- getKMLcoordinates(kmlfile=here("Data", "Polygons", "Varari_Polygon.kml"), ignoreAltitude=T)
 chem <- allchem %>%
   filter(CowTagID != "VSEEP")
@@ -43,13 +38,13 @@ seeppt <- meta %>%
 
 # mean lat and long for the maps
 LocationGPS <- meta %>%
-  group_by(Location) %>% # varari vs cabral
+  group_by(Location) %>%
   summarise(lon = median(lon + 0.00013, na.rm = TRUE),
             lat = median(lat, na.rm = TRUE))
 
 
 # Varari
-VarariBaseMap<-get_map(LocationGPS %>% filter(Location == "Varari") %>%
+VarariBaseMap<-get_map(LocationGPS %>%
                          select(lon,lat) %>% mutate(lat = lat + 0.0004),
                        maptype = 'satellite',
                        zoom = 19)
@@ -158,8 +153,7 @@ V_krig_map<-function(datakrig=preds){
   #   ggtitle(paste("Varari",DN, TD))
 }
 
-alphameta <- alphatag %>%
-  left_join(meta) %>%
+alphameta <- meta %>%
   select(AlphaTag, lat, lon)
 
 # add point for seep
@@ -175,7 +169,7 @@ mypalette <- (pnw_palette(name = "Bay", n = 19))
 Varari_kriging <- allchem %>%
   left_join(meta) %>%
   droplevels() %>%
-  left_join(alphatag) %>%
+  #left_join(alphatag) %>%
   select(lat, lon, AlphaTag, Phosphate_umolL) %>% # select the values that are important for the kriging
   pivot_longer(cols = Phosphate_umolL, names_to = "Parameter", values_to = "Values") %>%
   group_nest(Parameter) %>% # the parameters to group by
@@ -234,9 +228,9 @@ krigPlot
 ### Patch maps for paper visual
 
 
-mymaps <- krigPlot + inset_element(MooreaMapPlot, left = 0.5, bottom = 0.5, right = 1, top = 1.05) +
-  plot_annotation(tag_levels = list(c('B','A'))) + # moorea labeled A, overlaid atop varari labeled B
-  theme(plot.tag = element_text(size = c(15,15)))
+mymaps <- krigPlot + inset_element(MooreaMapPlot, left = 0.5, bottom = 0.5, right = 1, top = 1.05) #+
+  #plot_annotation(tag_levels = list(c('B','A'))) + # moorea labeled A, overlaid atop varari labeled B
+  #theme(plot.tag = element_text(size = c(15,15)))
 mymaps
 
 ggsave(here("Output","PaperFigures","Figure1_Maps.jpeg"),mymaps, height = 6, width = 6, device = "jpeg")
