@@ -28,12 +28,8 @@ traits <- read_csv(here("Data", "Surveys","Distinct_Taxa.csv"))
 myspecies <- read_csv(here("Data", "Surveys", "Species_Composition_2022.csv"))
 meta <- read_csv(here("Data", "Full_Metadata.csv"))
 chem <- read_csv(here("Data","Biogeochem", "Nutrients_Processed_All.csv")) %>%
-  filter(Season == "Dry") %>%
-  filter(Location == "Varari",
-         #CowTagID != "VSEEP" &
-           CowTagID != "V13") %>%
-  select(CowTagID, Parameters, CVSeasonal) %>%
-  pivot_wider(names_from = Parameters, values_from = CVSeasonal)
+  select(CowTagID, Parameters, CV) %>%
+  pivot_wider(names_from = Parameters, values_from = CV)
 
 myspecies <- myspecies %>%
   filter(Location == "Varari", # only analyze varari for now
@@ -128,7 +124,7 @@ relative.sgd <- quad.label$CowTagID
 ## Computing multidimensional functional space
 
 # source function from Teixido: function for computing the quality of functional dendrogramm and multidimensional functional spaces
-source(here("Scripts", "Teixido", "quality_funct_space.R"))
+source(here("Scripts", "quality_funct_space_Teixido2018.R"))
 
 qfs <- quality_funct_space(mat_funct = entity, # distinct functional trait entities (NAs not allowed. Traits can be different types: numeric, ordinal, nominal)
                            traits_weights = NULL, # default = same weight for all traits
@@ -144,7 +140,7 @@ round(qfs$meanSD, 4)
 # WHY < 0.004??
 fd.coord.sgd <- qfs$details_funct_space$mat_coord[,1:4] #%>% # keeps PC1-4
 
-write.csv(fd.coord.sgd, here("Data","FE_4D_coord_dmb.csv"))
+write.csv(fd.coord.sgd, here("Data","FE_4D_coord.csv"))
 
 # see variance explained by the PCoA axes
 gower <- qfs$details_funct_space$mat_dissim
@@ -213,7 +209,7 @@ Fric <- lapply(relative.sgd, function (x) {
   chg.sgd <- convhulln(fd.coord.sgd, options = "FA")
 
   c(length(species.sgd), length(species.sgd)/ncol(sgd.sp)*100, dim(m.sgd)[1], dim(m.sgd)[1]/dim(fd.coord.sgd)[1]*100, ch.sgd$vol/chg.sgd$vol*100)
-  #  72 is Teixido's total number of species, so I am dividing by my total number of species (51 at Varari)
+
 
 })#eo lapply
 
@@ -237,9 +233,9 @@ Fric <- rownames_to_column(as.data.frame(Fric), var = "CowTagID")
 Fric
 SeepFric <- tibble(CowTagID = "VSEEP",
                    NbSp = 1,
-                   NbSpP = 1/51*100,
+                   NbSpP = 1/51*100, # 51 total species
                    NbFEs = 1,
-                   NbFEsP = 1/28*100,
+                   NbFEsP = 1/22*100, # 22 total FE's
                    Vol8D = 0)
 Fric <- Fric %>%
   rbind(SeepFric)
