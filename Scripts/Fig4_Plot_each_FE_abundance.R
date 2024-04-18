@@ -14,21 +14,16 @@ library(PNWColors)
 ab.sgd <- read_csv(here("Data", "Species_Abundances_wide.csv"))
 fes_traits.sgd <- read_csv(here("Data", "Distinct_FE.csv"))
 spe_fes.sgd <- as.data.frame(read_csv(here("Data", "Species_FE.csv")))
-alphatag <- read_csv(here("Data", "CowTag_to_AlphaTag.csv"))
 meta <- read_csv(here("Data","Full_metadata.csv")) %>%
-  filter(Location == "Varari",
-         CowTagID != "V13") %>%
-  select(CowTagID, meanRugosity)
+  filter(CowTagID != "V13") %>%
+  select(CowTagID, AlphaTag, meanRugosity)
 fullchem <- read_csv(here("Data", "Biogeochem", "Nutrients_Processed_All.csv")) %>%
-  filter(Location == "Varari",
-         Season == "Dry")
+  select(CowTagID, Parameters, CV)
 chem <- fullchem %>%
   filter(Parameters == "Phosphate_umolL" | Parameters == "NN_umolL") %>%
-  select(CowTagID, Parameters, CVSeasonal) %>%
-  pivot_wider(names_from = Parameters, values_from = CVSeasonal)
+  pivot_wider(names_from = Parameters, values_from = CV)
 fullchem <- fullchem %>%
-  select(CowTagID, Parameters, CVSeasonal) %>%
-  pivot_wider(names_from = Parameters, values_from = CVSeasonal)
+  pivot_wider(names_from = Parameters, values_from = CV)
 
 ### CREATE PALETTES FOR FIGURES ###
 
@@ -49,7 +44,6 @@ Full_data <- ab.sgd %>%
   filter(pCover > 0) %>%
   left_join(spe_fes.sgd) %>%
   left_join(fes_traits.sgd) %>%
-  left_join(alphatag) %>%
   left_join(chem) %>%
   left_join(meta)
 
@@ -127,12 +121,7 @@ ptplot <- function(entity, param){
 
 }
 
-# Param_data <- Full_data %>%
-#   filter(CowTagID != "VSEEP") %>%
-#   mutate(entity = as.character(Morph2)) %>%
-#   group_by(AlphaTag,entity,Phosphate_umolL) %>%
-#   summarise(pCover = sum(pCover)) %>%
-#   filter(entity != "Cyanobacteria" & entity != "Mush")
+
 
 
 pval <- function(data = Full_data, entity, param, form = "poly"){ # poly or lm
@@ -196,22 +185,26 @@ pval <- function(data = Full_data, entity, param, form = "poly"){ # poly or lm
 
 ### CALCULATE RESIDUALS OF PCOVER ~ RUGOSITY
 Full_data_fe <- Full_data %>%
-  group_by(CowTagID, AlphaTag,
-           #FE, Morph2, Calc, ER,
+  group_by(CowTagID,
+           AlphaTag,
            Morph2,
-           Phosphate_umolL, meanRugosity) %>%
+           Phosphate_umolL,
+           meanRugosity) %>%
   summarise(pCover = sum(pCover))
+
 Full_data_fe %>%
   ggplot(aes(x = meanRugosity, y = pCover)) +
   geom_point() +
   facet_wrap(~Morph2, scales = "free_y")
+
 mymod <- lm(data = Full_data_fe %>%  filter(CowTagID != "VSEEP"),
    pCover ~ meanRugosity)
+
 summary(mymod)
 
 ### FUNCTIONAL ENTITIES
 anova(lm(pCover ~ poly(Phosphate_umolL,2)*FE, data = Full_data %>%
-             filter(CowTagID != "VSEEP"))) # using all abundance data at each location
+             filter(CowTagID != "VSEEP")))
 ### SUMMARY
 # Does an individual entity change its relative abundance along the phosphate gradient? Yes!
 ## Chlorophyta, Fil, NC, Auto p=0.005 (no interaction...not sure what this means then)
@@ -246,7 +239,7 @@ npt <- ptplot(Taxon_Group, NN_umolL) +
   labs(x = expression("CV Nitrate+Nitrite ("*mu*"mol/L)"), title = "Phyla")
 npt
 ppt
-ggsave(here("Output", "PaperFigures", "taxa_nn.png"), npt, device = "png", width = 6, height = 6)
+#ggsave(here("Output", "PaperFigures", "taxa_nn.png"), npt, device = "png", width = 6, height = 6)
 # pvalues
 pv1 <- pval(entity = Taxon_Group, param = Phosphate_umolL)
 pv2 <- pval(entity = Taxon_Group, param = NN_umolL)
@@ -274,11 +267,6 @@ summary(lm(pCover~poly(NN_umolL,2), data = Full_data %>%
              group_by(CowTagID, Taxon_Group, NN_umolL, Phosphate_umolL) %>%
              summarise(pCover=sum(pCover)) %>%
              filter(Taxon_Group == "Turf")))
-Full_data %>%
-  filter(CowTagID!= "VSEEP") %>%
-  group_by(CowTagID, Taxon_Group, NN_umolL, Phosphate_umolL) %>%
-  summarise(pCover=sum(pCover)) %>%
-  ggplot(aes(x = NN_umolL, y = pCover)) +geom_point()+geom_smooth(method = "lm", formula="y~poly(x,2)") + facet_wrap(~Taxon_Group)
 
 
 ### MORPHOLOGY
@@ -298,8 +286,8 @@ npm <- ptplot(Morph2, NN_umolL) +
   labs(x = expression("CV Nitrate+Nitrite ("*mu*"mol/L)"), title = "Morphology")
 npm
 ppm
-ggsave(here("Output", "PaperFigures", "morphology_phos.png"), ppm, device = "png", width = 6, height = 6)
-ggsave(here("Output", "PaperFigures", "morphology_nn.png"), npm, device = "png", width = 6, height = 6)
+#ggsave(here("Output", "PaperFigures", "morphology_phos.png"), ppm, device = "png", width = 6, height = 6)
+#ggsave(here("Output", "PaperFigures", "morphology_nn.png"), npm, device = "png", width = 6, height = 6)
 # pvalues
 pv3 <- pval(entity = Morph2, param = Phosphate_umolL)
 pv4 <- pval(entity = Morph2, param = NN_umolL)
@@ -390,7 +378,7 @@ npc <- ptplot(Calc, NN_umolL) +
 #pper + nper
 npc
 ppc
-ggsave(here("Output", "PaperFigures", "calc_nn.png"), npc, device = "png", width = 6, height = 6)
+#ggsave(here("Output", "PaperFigures", "calc_nn.png"), npc, device = "png", width = 6, height = 6)
 
 # pvalues
 pv5 <- pval(entity = Calc, param = Phosphate_umolL)
@@ -452,7 +440,7 @@ nper <- ptplot(ER, NN_umolL) +
   labs(x = expression("CV Nitrate+Nitrite ("*mu*"mol/L)"), title = "Energetic Resource")
 nper
 pper
-ggsave(here("Output", "PaperFigures", "ER_nn.png"), nper, device = "png", width = 6, height = 6)
+#ggsave(here("Output", "PaperFigures", "ER_nn.png"), nper, device = "png", width = 6, height = 6)
 # pvalues
 pv7 <- pval(entity = ER, param = Phosphate_umolL)
 pv8 <- pval(entity = ER, param = NN_umolL)
@@ -497,20 +485,21 @@ write_csv(TraitSignif, here("Output", "PaperFigures", "Trait_pVal.csv"))
 Figure4 <- (pm) /
   (per + pc) /
   (pt) +
-  plot_annotation(tag_levels = 'A') +
+  #plot_annotation(tag_levels = 'A') +
   theme(plot.tag = element_text(size = 10))
 Figure4
 
 
- ggsave(here("Output", "PaperFigures", "Fig5_Plot_FEgroups.png"), Figure4, width = 8, height = 10)
- ggsave(here("Output", "PaperFigures", "Plot_FEgroups_3.png"), Figure4, width = 6, height = 6)
+ ggsave(here("Output", "PaperFigures", "Fig4_Plot_FEgroups.png"), Figure4, width = 8, height = 10)
 
- ggsave(here("Output", "PaperFigures", "Plot_Taxon_dist.png"), pt, width = 6, height = 3.5)
- ggsave(here("Output", "PaperFigures", "Plot_Taxon_dist.png"), pt2, width = 6, height = 3)
- ggsave(here("Output", "PaperFigures", "Plot_Morph_dist.png"), pm2, width = 6, height = 3.5)
- ggsave(here("Output", "PaperFigures", "Plot_Morph_dist.png"), pm3, width = 6, height = 3)
- ggsave(here("Output", "PaperFigures", "Plot_Calc_dist.png"), pc, width = 6, height = 3.5)
- ggsave(here("Output", "PaperFigures", "Plot_ER_dist.png"), per, width = 6, height = 3.5)
+ # ggsave(here("Output", "PaperFigures", "Plot_FEgroups_3.png"), Figure4, width = 6, height = 6)
+ #
+ # ggsave(here("Output", "PaperFigures", "Plot_Taxon_dist.png"), pt, width = 6, height = 3.5)
+ # ggsave(here("Output", "PaperFigures", "Plot_Taxon_dist.png"), pt2, width = 6, height = 3)
+ # ggsave(here("Output", "PaperFigures", "Plot_Morph_dist.png"), pm2, width = 6, height = 3.5)
+ # ggsave(here("Output", "PaperFigures", "Plot_Morph_dist.png"), pm3, width = 6, height = 3)
+ # ggsave(here("Output", "PaperFigures", "Plot_Calc_dist.png"), pc, width = 6, height = 3.5)
+ # ggsave(here("Output", "PaperFigures", "Plot_ER_dist.png"), per, width = 6, height = 3.5)
 
 #######################
 # SUPPLEMENTAL FIGURE 4
@@ -520,283 +509,5 @@ SuppFig4 <- (ppm) / (pper + ppc) / (ppt)
 SuppFig4
 ggsave(here("Output", "PaperFigures", "SuppFig4_Trait_LM.png"),SuppFig4, width = 8, height = 12)
 
-
-####################################################
-####################################################
-
-
-
-
-
-
-
-
-
-
- ### DISTANCE ###
-
-
- FE_data <- Full_data %>%
-   group_by(CowTagID, AlphaTag, FE, Taxon_Group, Morph2, Calc, ER) %>%
-   summarise(pCover = sum(pCover)) %>%
-   ungroup() %>%
-   left_join(dist) %>%
-   left_join(chem)
-
- morphd <- FE_data %>%
-   select(dist_to_seep_m, NN_umolL, Phosphate_umolL, Morph2, pCover) %>%
-   group_by(dist_to_seep_m, Morph2) %>%
-   mutate(pCover = sum(pCover)) %>%
-   distinct()
- anova(lm(pCover ~ dist_to_seep_m*Morph2, data = morphd))
-
- taxond <- FE_data %>%
-   select(dist_to_seep_m, NN_umolL, Phosphate_umolL, Taxon_Group, pCover) %>%
-   group_by(dist_to_seep_m, Taxon_Group) %>%
-   mutate(pCover = sum(pCover)) %>%
-   distinct()
- anova(lm(pCover ~ dist_to_seep_m*Taxon_Group, data = taxond))
-
- calcd <- FE_data %>%
-   select(dist_to_seep_m, NN_umolL, Phosphate_umolL, Calc, pCover) %>%
-   group_by(dist_to_seep_m, Calc) %>%
-   mutate(pCover = sum(pCover)) %>%
-   distinct()
- anova(lm(pCover ~ dist_to_seep_m*Calc, data = calcd))
-
-
- erd <- FE_data %>%
-   select(dist_to_seep_m, NN_umolL, Phosphate_umolL, ER, pCover) %>%
-   group_by(dist_to_seep_m, ER) %>%
-   mutate(pCover = sum(pCover)) %>%
-   distinct()
- anova(lm(pCover ~ dist_to_seep_m*ER, data = erd))
-
-
- anova(lm(pCover ~ dist_to_seep_m*FE, data = Full_data %>% left_join(dist)))
-
- Full_data %>%
-   left_join(dist) %>%
-   left_join(chem) %>%
-   group_by(dist_to_seep_m, FE) %>%
-   summarise(pCover = sum(pCover)) %>%
-   ggplot(aes(x = dist_to_seep_m, y = pCover, color = FE)) +
-   geom_point()+
-   geom_smooth(method = "lm", formula = "y~x", color = "black") +
-   geom_smooth(method = "lm", formula = "y~poly(x,2)", color = "red") +
-   theme_bw() +
-   facet_wrap(~FE, scales = "free_y") +
-   theme(legend.position = "none")
-
-
- # nutrients relative to distance
- summary(lm(data = Full_data %>% filter(CowTagID != "VSEEP") %>% left_join(dist), NN_umolL ~ poly(dist_to_seep_m,2)))
- Full_data %>%
-   filter(CowTagID != "VSEEP") %>%
-   left_join(dist) %>%
-   select(AlphaTag, Phosphate_umolL, NN_umolL, dist_to_seep_m) %>%
-   rename('Nitrate+Nitrite' = NN_umolL,
-          'Phosphate' = Phosphate_umolL) %>%
-   pivot_longer(cols = c('Phosphate', 'Nitrate+Nitrite'), names_to = "Parameters", values_to = "Values") %>%
-   ggplot(aes(x = dist_to_seep_m, y = Values)) +
-   geom_point(aes(color = Parameters), show.legend = FALSE) +
-   geom_smooth(method = "lm", formula = "y~poly(x,2)", color = "black") +
-   facet_wrap(~Parameters, scales = "free") +
-   theme_bw() +
-   labs(x = "Distance to seep (m)", y = "CV of Nutrient Values (umol/L)")
-
-
- ### PHOSPHATE ###
-
-
-
- FE_data <- Full_data %>%
-   group_by(CowTagID, AlphaTag, FE, Taxon_Group, Morph2, Calc, ER) %>%
-   summarise(pCover = sum(pCover)) %>%
-   ungroup() %>%
-   left_join(chem)
-
- morphd <- FE_data %>%
-   select(Phosphate_umolL, Morph2, pCover) %>%
-   group_by(Phosphate_umolL, Morph2) %>%
-   mutate(pCover = sum(pCover)) %>%
-   distinct()
- anova(lm(pCover ~ Phosphate_umolL*Morph2, data = morphd))
-
- taxond <- FE_data %>%
-   select(Phosphate_umolL, Taxon_Group, pCover) %>%
-   group_by(Phosphate_umolL, Taxon_Group) %>%
-   mutate(pCover = sum(pCover)) %>%
-   distinct()
- anova(lm(pCover ~ Phosphate_umolL*Taxon_Group, data = taxond)) # taxa NS ~ phosphate
-
- calcd <- FE_data %>%
-   select(Phosphate_umolL, Calc, pCover) %>%
-   group_by(Phosphate_umolL, Calc) %>%
-   mutate(pCover = sum(pCover)) %>%
-   distinct()
- anova(lm(pCover ~ Phosphate_umolL*Calc, data = calcd))
-
-
- erd <- FE_data %>%
-   select(Phosphate_umolL, ER, pCover) %>%
-   group_by(Phosphate_umolL, ER) %>%
-   mutate(pCover = sum(pCover)) %>%
-   distinct()
- anova(lm(pCover ~ Phosphate_umolL*ER, data = erd)) # er NS ~ phosphate
-
-
- anova(lm(pCover ~ Phosphate_umolL*FE, data = Full_data %>% left_join(chem)))
-
-
- Full_data %>%
-   left_join(chem) %>%
-   group_by(Phosphate_umolL, FE) %>%
-   summarise(pCover = sum(pCover)) %>%
-   ggplot(aes(x = Phosphate_umolL, y = pCover, color = FE)) +
-   geom_point()+
-   geom_smooth(method = "lm", formula = "y~x", color = "black") +
-   geom_smooth(method = "lm", formula = "y~poly(x,2)", color = "red") +
-   theme_bw() +
-   facet_wrap(~FE, scales = "free") +
-   theme(legend.position = "none")
-
-
-
-# nutrients relative to silicate and salinity
-summary(lm(data = Full_data %>% filter(CowTagID != "VSEEP") %>% left_join(fullchem), Phosphate_umolL ~ Silicate_umolL))
-Full_data %>%
-  filter(CowTagID != "VSEEP") %>%
-  left_join(fullchem) %>%
-  select(AlphaTag, Phosphate_umolL, NN_umolL, Silicate_umolL) %>%
-  rename('Nitrate+Nitrite' = NN_umolL,
-         'Phosphate' = Phosphate_umolL) %>%
-  pivot_longer(cols = c('Phosphate', 'Nitrate+Nitrite'), names_to = "Parameters", values_to = "Values") %>%
-  ggplot(aes(x = Silicate_umolL, y = Values)) +
-  geom_point(aes(color = Parameters), show.legend = FALSE) +
-  geom_smooth(method = "lm", formula = "y~x", color = "black") +
-  facet_wrap(~Parameters, scales = "free") +
-  theme_bw() +
-  labs(x = "CV of Silicate (umol/L)", y = "CV of Nutrient Values (umol/L)")
-
-
-
-
-View(Full_data %>%
-  filter(CowTagID!= "VSEEP") %>%
-  group_by(FE) %>%
-  summarise(sumCover = sum(pCover),
-            meanCover=mean(pCover),
-            sdCover=sd(pCover),
-            seCover = sdCover / sqrt(nrow(.))))
-
-Full_data %>%
-  filter(FE == "Chlorophyta,Fil,NC,Auto") %>%
-  distinct(Taxa)
-Full_data %>%
-  filter(FE == "Phaeophyta,Br,NC,Auto") %>%
-  group_by(Taxa) %>%
-  summarise(sumCover = sum(pCover),
-            meanCover=mean(pCover),
-            sdCover=sd(pCover),
-            seCover = sdCover / sqrt(nrow(.)))
-Full_data %>%
-  filter(FE == "Cnidaria,Mas,Herm,Mix") %>%
-  group_by(Taxa) %>%
-  summarise(sumCover = sum(pCover),
-            meanCover=mean(pCover),
-            sdCover=sd(pCover),
-            seCover = sdCover / sqrt(nrow(.)))
-
-Full_data %>%
-  group_by(CowTagID) %>%
-  distinct(FE) %>%
-  ungroup() %>%
-  dplyr::count(FE) %>%
-  arrange(desc(n))
-
-# View(meta %>%
-#   filter(Location == "Varari") %>%
-#     drop_na(lat) %>%
-#     select(CowTagID, Sand) %>%
-#     mutate(NotSand = (100-Sand)/100) %>%
-#     right_join(Full_data) %>%
-#     filter(CowTagID != "VSEEP") %>%
-#     select(CowTagID:AlphaTag))
-
-#### FUNCTIONAL REDUNDANCY ACROSS GRADIENT WITHIN EACH PLOT
-View(Full_data %>%
-  group_by(CowTagID, AlphaTag) %>%
-  dplyr::count(FE) %>%
-  mutate(totalFE = sum(n)) %>%
-  filter(n > 1) %>%
-  mutate(totalRedundantFE = sum(n)) %>%
-  distinct(CowTagID, AlphaTag, totalRedundantFE, totalFE) %>%
-  mutate(totalRedundancy = totalRedundantFE / totalFE * 100) %>%
-  arrange(desc(totalRedundancy)))
-
-View(Full_data %>%
-  group_by(CowTagID, AlphaTag) %>%
-  dplyr::count(FE) %>%
-  mutate(FER = 1) %>% # get FE richness
-  mutate(totalFE = sum(FER)) %>%
-  filter(n > 1) %>% # only keep redundant FE
-  mutate(totalRedundantFE = sum(FER)) %>%
-  distinct(CowTagID, AlphaTag, totalRedundantFE, totalFE) %>%
-  mutate(relativeRedundantFE = totalRedundantFE / totalFE * 100) %>%
-  arrange(desc(relativeRedundantFE)))
-
-
-#############################
-# MACROALGAE ALONG GRADIENT
-#############################
-macroalg <- c("Turf", "Rhodophyta", "Chlorophyta", "Phaeophyta")
-
-Full_data %>%
-  filter(CowTagID != "VSEEP") %>%
-  mutate(Taxon_Group = if_else(Taxon_Group %in% macroalg, "Macroalgae", Taxon_Group)) %>%
-  group_by(CowTagID, AlphaTag, Phosphate_umolL, Taxon_Group) %>%
-  summarise(pCover = sum(pCover)) %>%
-  filter(Taxon_Group != "Cyanobacteria") %>%
-  ggplot(aes(x = Phosphate_umolL, y = pCover)) +
-  geom_point() +
-  #geom_smooth(method = "lm", formula = "y~poly(x,2)") +
-  facet_wrap(~Taxon_Group, scales = "free") +
-  theme_bw()+
-  theme(panel.background = element_rect(fill = "white"),
-        panel.grid.minor = element_blank(),
-        strip.background = element_rect(fill = "white"),
-        axis.title = element_text(size = 15),
-        axis.text = element_text(size = 12),
-        strip.text = element_text(size = 15)) +
-  labs(x = "CV Phosphate", y = "% Cover")
-
-MAabundance <- Full_data %>%
-  filter(CowTagID != "VSEEP") %>%
-  mutate(Taxon_Group = if_else(Taxon_Group %in% macroalg, "Macroalgae", Taxon_Group)) %>%
-  group_by(CowTagID, AlphaTag, Phosphate_umolL, Taxon_Group) %>%
-  summarise(pCover = sum(pCover))
-
-summary(lm(data = MAabundance, pCover ~ poly(Phosphate_umolL,2)))
-
-### RICHNESS
-Full_data %>%
-  filter(CowTagID != "VSEEP") %>%
-  mutate(Taxon_Group = if_else(Taxon_Group %in% macroalg, "Macroalgae", Taxon_Group)) %>%
-  group_by(CowTagID, AlphaTag, Phosphate_umolL, Taxa, Taxon_Group) %>%
-  summarise(pCover = sum(pCover)) %>%
-  ungroup() %>%
-  count(CowTagID, AlphaTag, Phosphate_umolL, Taxa) %>%
-  group_by(CowTagID, AlphaTag, Phosphate_umolL) %>%
-  summarise(richness = sum(n)) %>%
-  ggplot(aes(x = Phosphate_umolL, y = richness)) +
-  geom_point(color = "red", size = 5) +
-  geom_smooth(method = "lm", formula = "y~poly(x,2)", color = "black") +
-  theme_bw()+
-  theme(panel.background = element_rect(fill = "white"),
-        panel.grid = element_blank(),
-        axis.title = element_text(size = 20),
-        axis.text = element_text(size = 18)) +
-  labs(x = "CV Phosphate", y = "Macroalgal Richness")
 
 
