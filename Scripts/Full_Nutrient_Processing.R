@@ -11,22 +11,8 @@ library(curl) # pull data from url
 
 ## Read in data
 AugChemData<-read_csv(curl('https://raw.githubusercontent.com/njsilbiger/MooreaSGD_site-selection/main/Data/August2021/Allbiogeochemdata_QC.csv')) %>% mutate(Season = "Dry")
-#turb1<-read_csv(here("Data","Biogeochem","August2021","Turb_NC.csv"))
-MarchChemData <- read_csv(curl('https://raw.githubusercontent.com/njsilbiger/MooreaSGD_site-selection/main/Data//March2022/CarbonateChemistry/pHProbe_Data_calculated_POcorrect.csv')) %>% mutate(Season = "Wet")
-#turb2<-read_csv(here("Data","Biogeochem","March2022","Turb_NC.csv"))
-#depth <- read_csv(here("Data","Adj_Sandwich_Depth.csv"))
-turb <- read_csv(here("Data","Biogeochem", "July2022", "Turb_NC.csv"))
+turb <- read_csv(here("Data","Biogeochem", "Turb_NC.csv"))
 
-
-## Clean Data
-## remove unnecessary/redundant turbinaria data to not include in cluster analysis
-# turb1 <- turb1 %>%
-#   select(CowTagID, del15N, C_N, N_percent) %>%
-#   mutate(Season = "Dry")
-# turb2 <- turb2 %>%
-#   select(CowTagID, del15N, C_N, N_percent) %>%
-#   mutate(Season = "Wet")
-# turb <- full_join(turb1, turb2) %>% distinct()
 
 ## Join august and march data
 
@@ -57,18 +43,7 @@ removeSite3 <- AugChemData %>%
 removeSite5 <- AugChemData %>%
   filter(CowTagID %in% c("VSPRING", "Varari_Well", "CSPRING"))
 
-## Remove outliers (samples run on different day from rest) from March
-removeSite4 <- MarchChemData %>%
-  filter(Season == "Wet",
-         CowTagID %in% c("VSPRING",  # remove unnecessary sites from my analysis
-                         #"V17",
-                         "VRC",
-                         "CRC",
-                         "CPIT",
-                         "CPIT_Bottom",
-                         "CSPRING_ROAD",
-                         "CSPRING_BEACH",
-                         "CSPRING_BEACH2"))
+
 
 ## Pull out Location, lat, lon of CowTagIDs
 gps <- AugChemData %>% select(Location, CowTagID, lat, lon) %>% distinct()
@@ -93,31 +68,13 @@ AugChem <- AugChemData %>%
   #left_join(turb, by = c('CowTagID','Season')) %>% # join with T. ornata nutrient loading data
   left_join(gps, by = c('Location','CowTagID','lat','lon'))
 
-MarchChem <- MarchChemData %>%
-  rename(Temperature = TempInSitu) %>%
-  select(-c(Date,
-            SeepCode,
-            SamplingTime,
-            #Temperature,
-            Notes)) %>%
-  anti_join(removeSite4) %>%
-  #left_join(turb, by = c('CowTagID','Season')) %>%
-  left_join(gps, by = c('CowTagID'))
-
-
-ReducedChemData <- full_join(AugChem, MarchChem) %>%
+ReducedChemData <- AugChem %>%
   relocate(Season, .after = Day_Night) %>%
-  # remove clearly incorrect value of Ammonia_umolL at V17
+  # remove clearly incorrect value of Ammonia_umolL at V17 (false analytical value)
   filter(Ammonia_umolL < 16)
 
 
 ##### Summarise: Max and Min of parameters across seasons ####
-# range_data <- ReducedChemData %>%
-#   group_by(Location, CowTagID, Season) %>%
-#   # get parameter max and min across sampling periods by site and plate
-#   #summarise_at(vars(Salinity:Tyrosine_Like), .funs = range, na.rm=T) %>% # returns two rows containing max and min value per CowTagID
-#   summarise_at(vars(Salinity:Tyrosine_Like), .funs = diff, na.rm=T) %>%  # returns difference between rows per CowTagID (yields range at each location)
-#   ungroup()
 
 max_data <- ReducedChemData %>%
   group_by(Location, CowTagID, Season) %>%
@@ -139,58 +96,29 @@ full_data <- gps %>%
   right_join(full_data)
 
 
-## Remove absent data (creating -Inf values)
-anti <- full_data %>%
-  filter(Season == "Wet",
-         Parameters == "M_C" |
-           Parameters == "HIX" |
-           Parameters == "VisibleHumidic_Like" |
-           Parameters == "Tryptophan_Like" |
-           Parameters == "Tyrosine_Like")
-full_data <- full_data %>%
-  anti_join(anti)
 
+##### Summarise: Mean of parameters ####
 
-
-##### Summarise: Mean of parameters - group by Seasons ####
-mean_dataS <- ReducedChemData %>%
+mean_data <- ReducedChemData %>%
   group_by(Location, CowTagID, Season) %>%
   # Calculate mean values and pivot longer to join for CV calculation
   summarise_at(vars(Salinity:Tyrosine_Like), .funs = mean, na.rm = T) %>%
   ungroup() %>%
-  pivot_longer(cols = c(Salinity:Tyrosine_Like), names_to = "Parameters", values_to = "MeanSeasonal")
-mean_dataA <- ReducedChemData %>%
-  group_by(Location, CowTagID) %>%
-  # Calculate mean values and pivot longer to join for CV calculation
-  summarise_at(vars(Salinity:Tyrosine_Like), .funs = mean, na.rm = T) %>%
-  ungroup() %>%
-  pivot_longer(cols = c(Salinity:Tyrosine_Like), names_to = "Parameters", values_to = "MeanAll")
+  pivot_longer(cols = c(Salinity:Tyrosine_Like), names_to = "Parameters", values_to = "Mean")
 
-## Join mean_data to larger data set
-full_data <- full_data %>%
-  left_join(mean_dataS) %>%
-  left_join(mean_dataA)
 
-##### Summarise: Coefficient of Variation of parameters - group by Seasons ####
-cv_dataS <- ReducedChemData %>%
+##### Summarise: Coefficient of Variation of parameters ####
+cv_data <- ReducedChemData %>%
   group_by(Location, CowTagID, Season) %>%
   # Calculate mean values and pivot longer to join for CV calculation
   summarise_at(vars(Salinity:Tyrosine_Like), .funs = sd, na.rm = T) %>%
   ungroup() %>%
-  pivot_longer(cols = c(Salinity:Tyrosine_Like), names_to = "Parameters", values_to = "sdS")
-cv_dataA <- ReducedChemData %>%
-  group_by(Location, CowTagID) %>%
-  # Calculate mean values and pivot longer to join for CV calculation
-  summarise_at(vars(Salinity:Tyrosine_Like), .funs = sd, na.rm = T) %>%
-  ungroup() %>%
-  pivot_longer(cols = c(Salinity:Tyrosine_Like), names_to = "Parameters", values_to = "sdA")
+  pivot_longer(cols = c(Salinity:Tyrosine_Like), names_to = "Parameters", values_to = "sd")
 
-full_data <- full_data %>%
-  left_join(cv_dataS) %>%
-  left_join(cv_dataA) %>%
-  mutate(CVSeasonal = sdS / MeanSeasonal,
-         CVAll = sdA / MeanAll) %>%
-  select(-c(sdS, sdA))
+full_data <- mean_data %>%
+  full_join(cv_data) %>%
+  mutate(CV = sd / Mean) %>%
+  select(-c(sd))
 View(full_data)
 
 
