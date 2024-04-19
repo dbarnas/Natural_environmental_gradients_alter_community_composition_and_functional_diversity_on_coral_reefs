@@ -23,11 +23,7 @@ Fric <- read_csv(here("Data", "Sp_FE_Vol.csv"))
 resFric <- read_csv(here("Data", "Sp_FE_Vol_res.csv"))
 meta <- read_csv(here("Data", "Full_Metadata.csv"))
 chem <- read_csv(here("Data","Biogeochem", "Nutrients_Processed_All.csv")) %>%
-  filter(Season == "Dry") %>%
-  filter(Location == "Varari", CowTagID != "V13") %>%
-  #filter(CowTagID != "VSEEP") %>%
-  select(CowTagID, Parameters, CVSeasonal) %>%
-  pivot_wider(names_from = Parameters, values_from = CVSeasonal)
+  filter(CowTagID != "V13")
 alphatag <- read_csv(here("Data", "CowTag_to_AlphaTag.csv"))
 
 
@@ -77,6 +73,7 @@ supp3b <- resFric %>%
 
 plot_supp3 <- supp3a / supp3b #+
   #plot_annotation(tag_levels = "A")
+plot_supp3
 
 ggsave(here("Output", "PaperFigures", "Supp_Fig3_Nutrients_SGD_Regressions.png"), plot_supp3, width = 6, height = 6, device = "png")
 
