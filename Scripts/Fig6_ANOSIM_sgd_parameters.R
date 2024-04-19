@@ -23,22 +23,21 @@ library(patchwork)
 # LOAD DATA
 #############################
 chem <- read_csv(here("Data","Biogeochem","Nutrients_Processed_All.csv")) %>%
-  filter(Season == "Dry") %>%
-  filter(Location == "Varari", CowTagID != "V13") %>%
-  filter(CowTagID != "VSEEP") %>%
-  dplyr::select(CowTagID, Parameters, CVSeasonal)
+  filter(CowTagID != "V13",
+         CowTagID != "VSEEP")
 
 alphatag <- read_csv(here("Data", "CowTag_to_AlphaTag.csv"))
 
 myorder <- chem %>%
-  filter(Parameters == "Phosphate_umolL") %>%
+  select(CowTagID, Phosphate_umolL) %>%
   left_join(alphatag) %>%
-  arrange(CVSeasonal)
+  arrange(Phosphate_umolL)
 myorder <- myorder$AlphaTag
 
 
 
-ab.sgd <- read_csv(here("Data", "Species_Abundances_wide.csv")) %>% filter(CowTagID != "VSEEP")
+ab.sgd <- read_csv(here("Data", "Species_Abundances_wide.csv")) %>%
+  filter(CowTagID != "VSEEP")
 ab.sgd <- ab.sgd %>%
   left_join(alphatag) %>%
   mutate(AlphaTag = factor(AlphaTag, levels = myorder)) %>%
@@ -46,14 +45,13 @@ ab.sgd <- ab.sgd %>%
   dplyr::select(-AlphaTag)
 
 mychem <- chem %>%
-  filter(Parameters == "NN_umolL" |
-           Parameters == "Phosphate_umolL" |
-           Parameters == "Salinity" |
-           Parameters == "Silicate_umolL" |
-           Parameters == "Temperature" |
-           Parameters == "pH"
-  ) %>%
-  pivot_wider(names_from = Parameters, values_from = CVSeasonal) %>%
+  select(CowTagID,
+         NN_umolL,
+         Phosphate_umolL,
+         Salinity,
+         Silicate_umolL,
+         Temperature,
+         pH) %>%
   left_join(alphatag) %>%
   mutate(AlphaTag = factor(AlphaTag, levels = myorder)) %>%
   arrange(AlphaTag) %>%
@@ -79,12 +77,12 @@ set.seed(7)
 #############################
 # Normalize before scaling
 #############################
-hist(log(mychem$Salinity + 0.0001)) # left
+hist(log(mychem$Salinity + 0.0001))
 hist(mychem$Silicate_umolL)
 hist(mychem$NN_umolL)
 hist(mychem$Phosphate_umolL)
 hist(mychem$Temperature)
-hist(log(mychem$pH + 0.0001)) # left
+hist(log(mychem$pH + 0.0001))
 
 mychem <- mychem %>%
   mutate(Salinity = log(Salinity + 0.0001),
@@ -113,7 +111,6 @@ dist.abund = vegdist(ab.sgd, method = "bray")
 #environmental vector - euclidean distance
 # need to scale chem data
 dist.chem = dist(scale(x = mychem, scale = T, center = T), method = "euclidean")
-#dist.chem = dist(mychem, method = "euclidean")
 
 df.resFric<-as.data.frame(column_to_rownames(resFric, var = 'CowTagID')) %>%
   select(NbSpP)
@@ -121,9 +118,9 @@ dist.var = dist(df.resFric, method = "euclidean") # if I want to color points by
 
 ### Now we can run the mantel command:
 
-#abundance vs environmental
+#diversity vs environmental
 abund_chemSR = mantel(dist.abund, dist.chem, method = "spearman", permutations = 9999, na.rm = TRUE)
-abund_chemSR
+abund_chemSR # p > 0.05
 
 #### The point of this figure will be to visualize the correlation between two corresponding matrices of data. Each point in these pairwise scatter plots will represent the difference between two samples
 
@@ -226,9 +223,9 @@ dist.var = dist(df.resFric, method = "euclidean")
 ### Now we can run the mantel command:
 
 #abundance vs environmental matrix
-# spearman correlation is a nonparametric test, not relying on any particular pattern assemptions
+# spearman correlation is a nonparametric test, not relying on any particular pattern assumptions
 abund_chemFER = mantel(dist.abund, dist.chem, method = "spearman", permutations = 9999, na.rm = TRUE)
-abund_chemFER
+abund_chemFER # p < 0.05
 
 
 
@@ -267,8 +264,8 @@ mmFER
 
 
 ## PATCH PLOTS
-Bray_Curtis_Plot <- mmSR / mmFER +
-  plot_annotation(tag_levels = 'A')
+Bray_Curtis_Plot <- mmSR / mmFER #+
+  #plot_annotation(tag_levels = 'A')
 ggsave(here("Output", "PaperFigures", "Fig6_Composition_SGD.png"), Bray_Curtis_Plot, device = "png", height = 6, width = 6)
 
 Bray_Curtis_Plot
