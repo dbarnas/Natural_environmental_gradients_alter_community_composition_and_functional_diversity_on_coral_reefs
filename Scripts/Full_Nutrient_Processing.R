@@ -11,7 +11,6 @@ library(curl) # pull data from url
 
 ## Read in data
 AugChemData<-read_csv(curl('https://raw.githubusercontent.com/njsilbiger/MooreaSGD_site-selection/main/Data/August2021/Allbiogeochemdata_QC.csv'))
-turb <- read_csv(here("Data","Biogeochem", "Turb_NC.csv"))
 
 
 #### Process data
