@@ -109,7 +109,11 @@ full_data <- mean_data %>%
   full_join(cv_data) %>%
   mutate(CV = sd / Mean) %>%
   select(-c(sd, Mean))
-View(full_data)
+
+
+#### Reformat wide ####
+full_data <- full_data %>%
+  pivot_wider(names_from = Parameters, values_from = CV)
 
 
 ## Write csv ####
