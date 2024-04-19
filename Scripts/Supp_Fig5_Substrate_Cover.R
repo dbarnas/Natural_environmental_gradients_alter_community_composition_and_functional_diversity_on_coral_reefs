@@ -35,10 +35,8 @@ sub <- sub %>%
 
 chem <- chem %>%
   right_join(alpha) %>%
-  filter(Season == "Dry") %>%
-  select(AlphaTag, Parameters, CVSeasonal) %>%
-  filter(Parameters == "Phosphate_umolL") %>%
-  arrange(CVSeasonal)
+  select(AlphaTag, Phosphate_umolL) %>%
+  arrange(Phosphate_umolL)
 myorder <- chem$AlphaTag
 
 sub <- sub %>%
