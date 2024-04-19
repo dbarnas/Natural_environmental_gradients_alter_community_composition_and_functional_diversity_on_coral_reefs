@@ -1,5 +1,9 @@
 ### Supplemental Table 1: Table of identified taxa with associated functional traits and references
 
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
+```
+
 ```{r}
 ###############################
 # LOAD LIBRARIES
@@ -7,7 +11,6 @@
 library(tidyverse)
 library(here)
 library(kableExtra)
-library(typewritR)
 
 
 ###############################
@@ -21,20 +24,18 @@ abund <- read_csv(here("Data", "Species_Abundances_wide.csv"))
 # PROCESS FOR TABLE
 ###############################
 inTaxa <- abund %>% 
-  rename(`Porifera unknown` = `Grey Sponge`) %>% 
   pivot_longer(cols = 2:ncol(abund), names_to = "Taxa", values_to = "Values") %>% 
   distinct(Taxa)
 
 #### Modify Lit categories for special character strings
-# species_lit %>% 
-#   mutate(Lit_Energetic_Resource = if_else(grepl("Acuna and Zamponi", Lit_Energetic_Resource), 
-#                                           as.character("Acu",enye(n),"a and Zamponi 1995")), 
-#                                           Lit_Energetic_Resource))
+species_lit <- species_lit %>%
+  mutate(Lit_Energetic_Resource = if_else(grepl("Acuna and Zamponi 1995", Lit_Energetic_Resource),
+                                          as.character("Acuña and Zamponi 1995"),
+                                          Lit_Energetic_Resource))
 
 
 species <- species_lit %>% 
   right_join(inTaxa) %>%  # make sure we only have species from Varari
-  #separate(FE, into = c("Phyla", "Morphology", "Calcification", "Energetic Resource")) %>% 
   mutate(Taxa = if_else(Taxa == "Cyanobacteria", "Cyanobacteria unknown", Taxa)) %>% 
   rename(Species = Taxa,
          `Functional Entity` = FE)
@@ -65,16 +66,18 @@ species <- species %>%
   select(-Identification_notes)
 
 speciesTable <- species %>% 
+  # select(-"Functional Entity") %>% 
   kbl() %>% 
   kable_classic(html_font = "Times New Roman",
-                font_size = 20) %>% 
+                font_size = 15) %>% 
   row_spec(0, italic = TRUE, bold = TRUE) %>%  # header row
   column_spec(1, italic = TRUE) %>% 
   column_spec(1:5, background = "white")
 
+
 speciesTable
 ```
 ```{r, eval = FALSE}
-speciesTable %>% 
-  as_image(file = here("Output", "Thesis_Figures_Output", "SpeciesTable.png"))
+speciesTable %>%
+  as_image(file = here("Output", "PaperFigures", "SpeciesTable.png"))
 ```
