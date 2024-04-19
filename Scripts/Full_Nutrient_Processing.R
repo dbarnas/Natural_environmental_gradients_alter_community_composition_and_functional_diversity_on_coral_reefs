@@ -10,38 +10,31 @@ library(curl) # pull data from url
 
 
 ## Read in data
-AugChemData<-read_csv(curl('https://raw.githubusercontent.com/njsilbiger/MooreaSGD_site-selection/main/Data/August2021/Allbiogeochemdata_QC.csv')) %>% mutate(Season = "Dry")
+AugChemData<-read_csv(curl('https://raw.githubusercontent.com/njsilbiger/MooreaSGD_site-selection/main/Data/August2021/Allbiogeochemdata_QC.csv'))
 turb <- read_csv(here("Data","Biogeochem", "Turb_NC.csv"))
 
 
-## Join august and march data
+#### Process data
+AugChemData <- AugChemData %>%
+  filter(Location == "Varari") # focal site
 
 
 ## There seems to be a contaminated nutrient sample for V2 Low tide on the 8/8/2021.
 # Remove outliers / irrelevant data points
 removeSite1 <- AugChemData %>%
-  filter(Season == "Dry",
-         CowTagID == "V2",
+  filter(CowTagID == "V2",
          Tide == " Low",
          Day_Night == "Day",
          Date == ymd("2021-08-08"))
 
-removeSite2 <- AugChemData %>%
-  filter(Season == "Dry",
-         CowTagID == "C4",
-         Tide =="Low",
-         Day_Night == "Night",
-         Date == ymd("2021-08-09"))
-
 ## Filter out redundant low tide day sample, first 'low tide' was super high
-removeSite3 <- AugChemData %>%
-  filter(Season == "Dry",
-         Tide == "Low",
+removeSite2 <- AugChemData %>%
+  filter(Tide == "Low",
          Day_Night == "Day",
          Date == ymd("2021-08-06"))
 
-removeSite5 <- AugChemData %>%
-  filter(CowTagID %in% c("VSPRING", "Varari_Well", "CSPRING"))
+removeSite3 <- AugChemData %>%
+  filter(CowTagID %in% c("VSPRING", "Varari_Well"))
 
 
 
@@ -64,12 +57,9 @@ AugChem <- AugChemData %>%
   anti_join(removeSite1) %>% # remove outlier/irrelevant data
   anti_join(removeSite2) %>%
   anti_join(removeSite3) %>%
-  anti_join(removeSite5) %>%
-  #left_join(turb, by = c('CowTagID','Season')) %>% # join with T. ornata nutrient loading data
   left_join(gps, by = c('Location','CowTagID','lat','lon'))
 
 ReducedChemData <- AugChem %>%
-  relocate(Season, .after = Day_Night) %>%
   # remove clearly incorrect value of Ammonia_umolL at V17 (false analytical value)
   filter(Ammonia_umolL < 16)
 
@@ -77,12 +67,12 @@ ReducedChemData <- AugChem %>%
 ##### Summarise: Max and Min of parameters across seasons ####
 
 max_data <- ReducedChemData %>%
-  group_by(Location, CowTagID, Season) %>%
+  group_by(Location, CowTagID) %>%
   summarise_at(vars(Salinity:Tyrosine_Like), .funs = max, na.rm = T) %>%  # select for max values
   pivot_longer(cols = Salinity:Tyrosine_Like, names_to = "Parameters", values_to = "Maximum")
 
 min_data <- ReducedChemData %>%
-  group_by(Location, CowTagID, Season) %>%
+  group_by(Location, CowTagID) %>%
   summarise_at(vars(Salinity:Tyrosine_Like), .funs = min, na.rm = T) %>%  # select for max values
   pivot_longer(cols = Salinity:Tyrosine_Like, names_to = "Parameters", values_to = "Minimum")
 
@@ -100,7 +90,7 @@ full_data <- gps %>%
 ##### Summarise: Mean of parameters ####
 
 mean_data <- ReducedChemData %>%
-  group_by(Location, CowTagID, Season) %>%
+  group_by(Location, CowTagID) %>%
   # Calculate mean values and pivot longer to join for CV calculation
   summarise_at(vars(Salinity:Tyrosine_Like), .funs = mean, na.rm = T) %>%
   ungroup() %>%
@@ -109,7 +99,7 @@ mean_data <- ReducedChemData %>%
 
 ##### Summarise: Coefficient of Variation of parameters ####
 cv_data <- ReducedChemData %>%
-  group_by(Location, CowTagID, Season) %>%
+  group_by(Location, CowTagID) %>%
   # Calculate mean values and pivot longer to join for CV calculation
   summarise_at(vars(Salinity:Tyrosine_Like), .funs = sd, na.rm = T) %>%
   ungroup() %>%
@@ -118,7 +108,7 @@ cv_data <- ReducedChemData %>%
 full_data <- mean_data %>%
   full_join(cv_data) %>%
   mutate(CV = sd / Mean) %>%
-  select(-c(sd))
+  select(-c(sd, Mean))
 View(full_data)
 
 
