@@ -18,17 +18,12 @@ library(here)
 ###############################
 meta <- read_csv(here("Data","Full_metadata.csv"))
 chem <- read_csv(here("Data","Biogeochem", "Nutrients_Processed_All.csv")) %>%
-  filter(Season == "Dry") %>%
-  filter(Location == "Varari",
-         CowTagID != "V13") %>%
-  select(CowTagID, Parameters, CVSeasonal) %>%
-  pivot_wider(names_from = Parameters, values_from = CVSeasonal)
+  filter(CowTagID != "V13")
 resFric <- read_csv(here("Data", "Sp_FE_Vol_res.csv")) %>%
   as_tibble() %>%
   left_join(meta) %>%
   left_join(chem) %>%
-  filter(#CowTagID != "VSEEP",
-    CowTagID != "V13")
+  filter(CowTagID != "V13")
 
 
 ###############################
@@ -36,8 +31,18 @@ resFric <- read_csv(here("Data", "Sp_FE_Vol_res.csv")) %>%
 ###############################
 
 ### Calculate Ratios
-resFric %>% mutate(FE_SP = NbFEs / NbSp) %>% select(CowTagID,NbFEs, NbSp, FE_SP)
+resFric %>%
+  mutate(FE_SP = NbFEs / NbSp) %>%
+  select(CowTagID,NbFEs, NbSp, FE_SP)
 
+### Stats
+# w/o seep, p > 0.2
+anova(lm(data = resFric %>% mutate(FE_SP = NbFEs / NbSp) %>% filter(CowTagID != "VSEEP"),
+         FE_SP ~ Phosphate_umolL))
+
+# with seep p < 0.005
+anova(lm(data = resFric %>% mutate(FE_SP = NbFEs / NbSp),
+         FE_SP ~ Phosphate_umolL))
 
 
 ###############################
@@ -50,7 +55,7 @@ pRat <- resFric %>%
   ggplot(aes(x = Phosphate_umolL,
              y = NbFEs / NbSp)) +
   geom_point(size = 2.5) +
-  geom_smooth(method = "lm", formula = "y~x", color = "black") +
+  #geom_smooth(method = "lm", formula = "y~x", color = "black") +
   theme_bw() +
   theme(axis.title.y = element_text(size = 14),
         axis.text = element_text(size = 12),
@@ -73,8 +78,10 @@ pRatSeep <- resFric %>%
        x = expression("CV Phosphate ("*mu*"mol/L)"))
 
 ### Patch
-SpFERatio <- (pRat / pRatSeep) +
-  plot_annotation(tag_levels = 'A')
+SpFERatio <- (pRat / pRatSeep) #+
+  #plot_annotation(tag_levels = 'A')
+
+SpFERatio
 
 #### save plots
 ggsave(here("Output", "PaperFigures", "Supp_Fig5_SP_FER_Ratio.png"), SpFERatio, width = 6, height = 6, device = "png")
