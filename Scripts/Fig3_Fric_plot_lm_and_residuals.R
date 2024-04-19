@@ -24,9 +24,7 @@ Fric <- read_csv(here("Data", "Sp_FE_Vol.csv"))
 resFric <- read_csv(here("Data", "Sp_FE_Vol_res.csv"))
 meta <- read_csv(here("Data", "Full_Metadata.csv"))
 chem <- read_csv(here("Data","Biogeochem", "Nutrients_Processed_All.csv")) %>%
-  filter(CowTagID != "V13") %>%
-  select(CowTagID, Parameters, CV) %>%
-  pivot_wider(names_from = Parameters, values_from = CV)
+  filter(CowTagID != "V13")
 
 
 ### Join Sp and FE and Vol4D with metadata

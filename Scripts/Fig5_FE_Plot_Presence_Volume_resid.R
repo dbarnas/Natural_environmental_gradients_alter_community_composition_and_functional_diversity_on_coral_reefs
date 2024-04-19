@@ -49,10 +49,9 @@ meta <- meta %>% # fill in seep rugosity value
 
 chem <- chem %>%
   filter(Location == "Varari",
-         CowTagID != "V13") %>%
-  select(CowTagID, Parameters, CV) %>%
-  pivot_wider(names_from = Parameters, values_from = CV)
-redchem <- chem %>% select(CowTagID, Phosphate_umolL, NN_umolL)
+         CowTagID != "V13")
+redchem <- chem %>%
+  select(CowTagID, Phosphate_umolL, NN_umolL)
 
 comp <- comp %>%
   filter(Location == "Varari",

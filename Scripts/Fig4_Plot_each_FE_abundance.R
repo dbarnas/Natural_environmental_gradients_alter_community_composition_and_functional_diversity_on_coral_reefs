@@ -17,13 +17,10 @@ spe_fes.sgd <- as.data.frame(read_csv(here("Data", "Species_FE.csv")))
 meta <- read_csv(here("Data","Full_metadata.csv")) %>%
   filter(CowTagID != "V13") %>%
   select(CowTagID, AlphaTag, meanRugosity)
-fullchem <- read_csv(here("Data", "Biogeochem", "Nutrients_Processed_All.csv")) %>%
-  select(CowTagID, Parameters, CV)
+fullchem <- read_csv(here("Data", "Biogeochem", "Nutrients_Processed_All.csv"))
 chem <- fullchem %>%
-  filter(Parameters == "Phosphate_umolL" | Parameters == "NN_umolL") %>%
-  pivot_wider(names_from = Parameters, values_from = CV)
-fullchem <- fullchem %>%
-  pivot_wider(names_from = Parameters, values_from = CV)
+  select(CowTagID, Phosphate_umolL, NN_umolL)
+
 
 ### CREATE PALETTES FOR FIGURES ###
 

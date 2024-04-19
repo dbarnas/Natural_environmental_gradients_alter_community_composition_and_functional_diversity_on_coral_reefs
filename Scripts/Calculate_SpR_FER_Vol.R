@@ -27,9 +27,7 @@ library(PNWColors)
 traits <- read_csv(here("Data", "Surveys","Distinct_Taxa.csv"))
 myspecies <- read_csv(here("Data", "Surveys", "Species_Composition_2022.csv"))
 meta <- read_csv(here("Data", "Full_Metadata.csv"))
-chem <- read_csv(here("Data","Biogeochem", "Nutrients_Processed_All.csv")) %>%
-  select(CowTagID, Parameters, CV) %>%
-  pivot_wider(names_from = Parameters, values_from = CV)
+chem <- read_csv(here("Data","Biogeochem", "Nutrients_Processed_All.csv"))
 
 myspecies <- myspecies %>%
   filter(Location == "Varari", # only analyze varari for now
