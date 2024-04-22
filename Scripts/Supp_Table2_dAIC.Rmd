@@ -1,5 +1,9 @@
 ### Supplemental Table 2: Table of Delta corrected AIC values
 
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
+```
+
 ```{r, AICtable}
 ###############################
 # LOAD LIBRARIES
@@ -13,7 +17,6 @@ library(kableExtra)
 # READ IN DATA
 ###############################
 modelTable <- read_csv(here("Output", "PaperFigures","Model_Selection_Table.csv"))
-#modelTable_rug <- read_csv(here("Output", "PaperFigures","Model_Selection_Table_rugosity.csv"))
 
 
 modTable <- modelTable %>%  
@@ -32,7 +35,6 @@ modTable <- modelTable %>%
   mutate(Y = factor(Y, levels = c("NbSpP", "NbFEsP", "Vol8D", "resSpp", "resFEp", "resVol")),
          Parameter = factor(Parameter,
                             levels = c("Rugosity", "Phosphate", "Nitrate+Nitrite", "pH", "Salinity", "Silicate", "Temperature"))) %>% 
-                                       #"Phosphate:Rugosity", "Nitrate+Nitrite:Rugosity", "pH:Rugosity", "Salinity:Rugosity", "Silicate:Rugosity", "Temperature:Rugosity"))) %>% 
   arrange(Y,Parameter) 
 ```
 ```{r}
@@ -55,7 +57,7 @@ AICtable
 ```
 ```{r, eval = FALSE}
 AICtable %>% 
-  as_image(file = here("Output", "Thesis_Figures_Output", "AICtable.png"))
+  as_image(file = here("Output", "PaperFigures", "AICtable.png"))
 ```
 ```{r}
 ###############################
@@ -77,5 +79,5 @@ AICtable_residuals
 ```
 ```{r, eval = FALSE}
 AICtable_residuals %>% 
-  as_image(file = here("Output", "Thesis_Figures_Output", "AICtable_residuals.png"))
+  as_image(file = here("Output", "PaperFigures", "AICtable_residuals.png"))
 ```

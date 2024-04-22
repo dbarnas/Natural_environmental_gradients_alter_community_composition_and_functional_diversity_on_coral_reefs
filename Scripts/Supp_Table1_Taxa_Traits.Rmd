@@ -72,12 +72,13 @@ speciesTable <- species %>%
                 font_size = 15) %>% 
   row_spec(0, italic = TRUE, bold = TRUE) %>%  # header row
   column_spec(1, italic = TRUE) %>% 
-  column_spec(1:5, background = "white")
+  column_spec(1:7, background = "white")
 
 
 speciesTable
 ```
 ```{r, eval = FALSE}
 speciesTable %>%
+  save_kable(file = here("Output", "PaperFigures", "SpeciesTable.pdf"))
   as_image(file = here("Output", "PaperFigures", "SpeciesTable.png"))
 ```
