@@ -258,6 +258,9 @@ npt <- ptplot(Taxon_Group, NN_umolL) +
   geom_smooth(method = "lm", formula = "y~poly(x,2)", color = "black") +
   theme(strip.background = element_rect(fill = "white")) +
   labs(x = expression("CV Nitrate+Nitrite ("*mu*"mol/L)"), title = "Phyla")
+ppt_2 <- ptplot(Taxon_Group, Phosphate_umolL) +
+  theme(strip.background = element_rect(fill = "white")) +
+  labs(x = expression("CV Phosphate ("*mu*"mol/L)"), title = "Phyla")
 
 #ggsave(here("Output", "PaperFigures", "taxa_nn.png"), npt, device = "png", width = 6, height = 6)
 
@@ -305,6 +308,9 @@ npm <- ptplot(Morph2, NN_umolL) +
   geom_smooth(method = "lm", formula = "y~poly(x,2)", color = "black") +
   theme(strip.background = element_rect(fill = "white")) +
   labs(x = expression("CV Nitrate+Nitrite ("*mu*"mol/L)"), title = "Morphology")
+ppm_2 <- ptplot(Morph2, Phosphate_umolL) +
+  theme(strip.background = element_rect(fill = "white")) +
+  labs(x = expression("CV Phosphate ("*mu*"mol/L)"), title = "Morphology")
 
 #ggsave(here("Output", "PaperFigures", "morphology_phos.png"), ppm, device = "png", width = 6, height = 6)
 
@@ -395,6 +401,9 @@ npc <- ptplot(Calc, NN_umolL) +
   geom_smooth(method = "lm", formula = "y~x", color = "black") +
   theme(strip.background = element_rect(fill = "white")) +
   labs(x = expression("CV Nitrate+Nitrite ("*mu*"mol/L)"), title = "Calcification")
+ppc_2 <- ptplot(Calc, Phosphate_umolL) +
+  theme(strip.background = element_rect(fill = "white")) +
+  labs(x = expression("CV Phosphate ("*mu*"mol/L)"), title = "Calcification")
 
 #ggsave(here("Output", "PaperFigures", "calc_nn.png"), npc, device = "png", width = 6, height = 6)
 
@@ -508,17 +517,10 @@ Figure4 <- (pt) /
   theme(plot.tag = element_text(size = 10))
 Figure4
 
-Figure4_ii <- (pt) /
-  (pm) /
-  (pc) /
-  (per)  +
-  #plot_annotation(tag_levels = 'A') +
-  theme(plot.tag = element_text(size = 10))
-Figure4_ii
+
 
 
  ggsave(here("Output", "PaperFigures", "Fig4_Plot_FEgroups.png"), Figure4, width = 7, height = 9)
- ggsave(here("Output", "PaperFigures", "Fig4_Plot_FEgroups_ii.png"), Figure4_ii, width = 7, height = 10)
 
  # ggsave(here("Output", "PaperFigures", "Plot_FEgroups_3.png"), Figure4, width = 6, height = 6)
  #
@@ -533,9 +535,13 @@ Figure4_ii
 # SUPPLEMENTAL FIGURE 4
 #######################
 
-SuppFig4 <- (ppm) / (pper + ppc) / (ppt)
+SuppFig4 <- (ppt) / (ppm) / (ppc + pper)
 SuppFig4
 ggsave(here("Output", "PaperFigures", "Supp_Fig4_Trait_LM.png"),SuppFig4, width = 8, height = 12)
+
+SuppFig4_noregression <- (ppt_2) / (ppm_2) / (ppc_2 + pper)
+SuppFig4_noregression
+ggsave(here("Output", "PaperFigures", "Supp_Fig4_Trait_noLM.png"),SuppFig4_noregression, width = 8, height = 12)
 
 
 
