@@ -52,20 +52,18 @@ resFric <- reg.Fric %>%
 ### Supplemental Figure 2a:
 
 parameter_list <- list("NN_umolL" = expression(paste("Nitrate+Nitrite ("*mu*"mol/L)")),
-                       "pH" = "pH",
                        "Phosphate_umolL" = expression(paste("Phosphate ("*mu*"mol/L)")),
-                       "Salinity" = "Salinity",
                        "Silicate_umolL" = expression(paste("Silicate ("*mu*"mol/L)")),
+                       "Salinity" = "Salinity",
+                       "pH" = "pH",
                        "Temperature" = expression(paste("Temperature ("*degree*"C)")))
 parameter_labeller <- function(variable,value){
   return(parameter_list[value])
 }
 supp2A <- resFric %>%
-  # rename('Nitrate+Nitrite (umol/L)' = NN_umolL, 'Phosphate (umol/L)' = Phosphate_umolL,
-  #        'Silicate (umol/L)' = Silicate_umolL, 'Temperature (C)' = Temperature) %>%
   select(-TA) %>%
-  # pivot_longer(cols = c(Salinity:'Nitrate+Nitrite (umol/L)'), names_to = "Parameters", values_to = "Values") %>%
   pivot_longer(cols = c(Salinity:NN_umolL), names_to = "Parameters", values_to = "Values") %>%
+  mutate(Parameters = factor(Parameters, levels = c('NN_umolL', 'Phosphate_umolL', 'Silicate_umolL', 'Salinity', 'pH', 'Temperature'))) %>%
   ggplot(aes(x = Values, y = meanRugosity)) +
   geom_point() +
   geom_smooth(method = "lm", formula = "y~x", color = "black") +
