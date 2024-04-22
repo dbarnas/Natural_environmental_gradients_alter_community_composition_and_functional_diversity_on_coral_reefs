@@ -65,20 +65,30 @@ species <- species %>%
   rename(`Energetic Resource` = Energetic_Resource) %>% 
   select(-Identification_notes)
 
-speciesTable <- species %>% 
-  # select(-"Functional Entity") %>% 
+# split into two tables for separate pages
+sp1 <- species[1:26,]
+sp2 <- species[27:nrow(species),]
+
+speciesTable1 <- sp1 %>% 
   kbl() %>% 
   kable_classic(html_font = "Times New Roman",
-                font_size = 15) %>% 
+                font_size = 20) %>% 
   row_spec(0, italic = TRUE, bold = TRUE) %>%  # header row
   column_spec(1, italic = TRUE) %>% 
   column_spec(1:7, background = "white")
 
+speciesTable2 <- sp2 %>% 
+  kbl() %>% 
+  kable_classic(html_font = "Times New Roman",
+                font_size = 20) %>% 
+  row_spec(0, italic = TRUE, bold = TRUE) %>%  # header row
+  column_spec(1, italic = TRUE) %>% 
+  column_spec(1:7, background = "white")
 
-speciesTable
 ```
 ```{r, eval = FALSE}
-speciesTable %>%
-  save_kable(file = here("Output", "PaperFigures", "SpeciesTable.pdf"))
-  as_image(file = here("Output", "PaperFigures", "SpeciesTable.png"))
+speciesTable1 %>%
+  as_image(file = here("Output", "PaperFigures", "SpeciesTable1.png"))
+speciesTable2 %>%
+  as_image(file = here("Output", "PaperFigures", "SpeciesTable2.png"))
 ```
