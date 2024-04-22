@@ -231,6 +231,6 @@ mymaps <- krigPlot + inset_element(MooreaMapPlot, left = 0.5, bottom = 0.5, righ
   #theme(plot.tag = element_text(size = c(15,15)))
 mymaps
 
-ggsave(here("Output","PaperFigures","Figure1_Maps.jpeg"),mymaps, height = 6, width = 6, device = "jpeg")
+ggsave(here("Output","PaperFigures","Fig1_Maps.jpeg"),mymaps, height = 6, width = 6, device = "jpeg")
 
 

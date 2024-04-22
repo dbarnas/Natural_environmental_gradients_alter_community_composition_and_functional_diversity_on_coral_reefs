@@ -504,7 +504,7 @@ Figure4
 
 SuppFig4 <- (ppm) / (pper + ppc) / (ppt)
 SuppFig4
-ggsave(here("Output", "PaperFigures", "SuppFig4_Trait_LM.png"),SuppFig4, width = 8, height = 12)
+ggsave(here("Output", "PaperFigures", "Supp_Fig4_Trait_LM.png"),SuppFig4, width = 8, height = 12)
 
 
 
