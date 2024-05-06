@@ -46,18 +46,23 @@ VarariBaseMap<-get_map(LocationGPS %>%
                          select(lon,lat) %>% mutate(lat = lat + 0.0004),
                        maptype = 'satellite',
                        zoom = 19)
+meta_adj <- meta %>%
+  mutate(lat = if_else(AlphaTag == "H", lat-0.00003,
+               if_else(AlphaTag == "F", lat-0.00002,
+               if_else(AlphaTag == "Q", lat-0.00003,
+               if_else(AlphaTag == "B", lat-0.00002, lat)))))
 
 # base map
 # Varari
 VmapSites <- ggmap(VarariBaseMap) +
   labs(x = "Longitude", y = "Latitude") +  #label x and y axes
-  geom_point(data = meta,
+  geom_point(data = meta_adj,
              aes(x = lon, y = lat),
              size = 8,
              shape = 22,
              fill = "white",
              color = "black") +
-  geom_text(data = meta,
+  geom_text(data = meta_adj,
              aes(x = lon, y = lat,
                  label = AlphaTag),
              size = 4) +
@@ -93,10 +98,10 @@ MooreaMapPlot <- ggmap(MooreaMap) + # base map
   geom_segment(x = LocationGPS$lon[1] + 0.006, y = LocationGPS$lat[1], xend = LocationGPS$lon[1] + 0.023, yend = LocationGPS$lat[1], color = "white", size = 1) +  # adds horizontal line from edge of box to Location name
 
   theme(axis.title = element_blank(),
-        axis.text = element_text(size = 9))
+        axis.text = element_text(size = 9)) +
 
   # scale_y_continuous(breaks = c(-17.60, -17.45)) +
-  # scale_x_continuous(breaks = c(-149.90, -149.75))
+  scale_x_continuous(breaks = c(-149.90, -149.825, -149.75))
 
 #geom_segment(x = LocationGPS$lon[2] + 0.006, y = LocationGPS$lat[2], xend = LocationGPS$lon[2] + 0.023, yend = LocationGPS$lat[2], color = "white", size = 2)
 
@@ -151,7 +156,7 @@ V_krig_map<-function(datakrig=preds){
   #   ggtitle(paste("Varari",DN, TD))
 }
 
-alphameta <- meta %>%
+alphameta <- meta_adj %>%
   select(AlphaTag, lat, lon)
 
 # add point for seep
@@ -165,7 +170,7 @@ mypalette <- (pnw_palette(name = "Bay", n = 19))
 # nest by all parameters, tides, day/Night, Date, etc to make it easy to plot all types of maps
 # Varari
 Varari_kriging <- allchem %>%
-  left_join(meta) %>%
+  left_join(meta_adj) %>%
   droplevels() %>%
   #left_join(alphatag) %>%
   select(lat, lon, AlphaTag, Phosphate_umolL) %>% # select the values that are important for the kriging
@@ -175,11 +180,11 @@ Varari_kriging <- allchem %>%
          longname = paste(Parameter),
          plots = map2(preds, longname, ~ggmap(VarariBaseMap)+
                         geom_point(data=.x$result, aes(x=x, y=y, colour=pred), size=4, alpha=0.5) +
-                        geom_label(data = alphameta, aes(x=lon, y=lat, label = AlphaTag)) +
+                        geom_label(data = alphameta, aes(x=lon, y=lat, label = AlphaTag), size = 4) +
                         geom_label(data = seeppt,
                                    aes(x = lon, y = lat + 0.00001),
                                    label = "Seep\nA",
-                                   fill = "white") +
+                                   fill = "white", size = 4) +
                         scale_color_gradientn(colors = mypalette,
                                               trans = "log") + # log transform pred
                         coord_sf() +
