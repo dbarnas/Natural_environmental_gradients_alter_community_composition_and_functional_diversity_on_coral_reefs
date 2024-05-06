@@ -98,7 +98,8 @@ MooreaMapPlot <- ggmap(MooreaMap) + # base map
   geom_segment(x = LocationGPS$lon[1] + 0.006, y = LocationGPS$lat[1], xend = LocationGPS$lon[1] + 0.023, yend = LocationGPS$lat[1], color = "white", size = 1) +  # adds horizontal line from edge of box to Location name
 
   theme(axis.title = element_blank(),
-        axis.text = element_text(size = 9)) +
+        axis.text = element_text(size = 8),
+        panel.background = element_rect(fill = "white")) +
 
   # scale_y_continuous(breaks = c(-17.60, -17.45)) +
   scale_x_continuous(breaks = c(-149.90, -149.825, -149.75))
