@@ -231,9 +231,11 @@ krigPlot
 ### Patch maps for paper visual
 
 
-mymaps <- krigPlot + inset_element(MooreaMapPlot, left = 0.5, bottom = 0.5, right = 1, top = 1.05) #+
-  #plot_annotation(tag_levels = list(c('B','A'))) + # moorea labeled A, overlaid atop varari labeled B
-  #theme(plot.tag = element_text(size = c(15,15)))
+mymaps <- krigPlot + inset_element(MooreaMapPlot,
+                                   left = 0.5, bottom = 0.5,
+                                   right = 1, top = 1.1) +
+  plot_annotation(tag_levels = list(c('B','A'))) + # moorea labeled A, overlaid atop varari labeled B
+  theme(plot.tag = element_text(size = c(15,14)))
 mymaps
 
 ggsave(here("Output","PaperFigures","Fig1_Maps.jpeg"),mymaps, height = 6, width = 6, device = "jpeg")
