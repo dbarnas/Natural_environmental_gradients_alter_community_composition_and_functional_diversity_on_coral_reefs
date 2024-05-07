@@ -52,13 +52,8 @@ traits <- traits %>%
   select(Taxa,
          Taxon_Group,
          Morph2,
-         #Symb,
          Calc,
-         #Life_Span,
-         #MS_cat,
-         #GR_cat,
          ER
-         #FM
          ) %>%
   unite(col = "FE", Taxon_Group:ER, sep = ",", remove = F) %>%
   relocate(FE, .after = ER) %>%
