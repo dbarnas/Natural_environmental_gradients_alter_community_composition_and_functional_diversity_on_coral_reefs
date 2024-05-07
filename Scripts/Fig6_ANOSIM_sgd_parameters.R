@@ -139,7 +139,7 @@ matSR = data.frame(aa,tt,gg)
 #abundance vs temperature
 mmSR = ggplot(matSR, aes(y = aa, x = tt)) +
   geom_point(size = 3, alpha = 0.5, shape = 21, aes(fill = gg)) +
-  labs(x = expression(Delta*" SGD"), y = "Bray-Curtis Dissimilarity", fill = "% SR Dissimilarity") + #fill = expression("PO"[4]^"3-")) +
+  labs(x = expression(Delta*" SGD"), y = "Bray-Curtis Dissimilarity", fill = "% TR Dissimilarity") + #fill = expression("PO"[4]^"3-")) +
   theme( axis.text.x = element_text(face = "bold",colour = "black", size = 12),
          axis.text.y = element_text(face = "bold", size = 11, colour = "black"),
          axis.title= element_text(face = "bold", size = 14, colour = "black"),
@@ -264,8 +264,8 @@ mmFER
 
 
 ## PATCH PLOTS
-Bray_Curtis_Plot <- mmSR / mmFER #+
-  #plot_annotation(tag_levels = 'A')
+Bray_Curtis_Plot <- mmSR / mmFER +
+  plot_annotation(tag_levels = 'A')
 ggsave(here("Output", "PaperFigures", "Fig6_Composition_SGD.png"), Bray_Curtis_Plot, device = "png", height = 6, width = 6)
 
 Bray_Curtis_Plot
