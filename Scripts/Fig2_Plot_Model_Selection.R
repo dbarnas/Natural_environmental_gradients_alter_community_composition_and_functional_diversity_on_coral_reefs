@@ -195,7 +195,7 @@ AICplotAll
 
 
 
-ggsave(here("Output", "PaperFigures", "Fig2_AIC_model_selection.png"), AICplotAll, width = 6, height = 6, device = "png")
+ggsave(here("Output", "PaperFigures", "Fig2_AIC_model_selection.png"), AICplotAll, width = 6.5, height = 6, device = "png")
 
 #ggsave(here("Output", "PaperFigures", "AICplot_long.png"), AICplot, width = 4, height = 5, device = "png")
 #ggsave(here("Output", "PaperFigures", "AICplotres_long.png"), AICplotres, width = 4, height = 5, device = "png")
