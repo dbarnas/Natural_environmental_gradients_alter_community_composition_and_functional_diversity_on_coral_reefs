@@ -1,3 +1,7 @@
+### Script sourced from Teixido et al. 2018
+### Sourced in Calculate_SpR_FER_Vol.R script created by Danielle Barnas
+### as a modification of Teixido et al. 2018
+
 #################################################################################################################################
 ## quality_funct_space: R function for computing the quality of functional dendrogramm and multidimensional functional spaces  ##
 ##                                                                                                                             ##
@@ -5,7 +9,7 @@
 ##                                                                                                                             ##
 ##                  Given a functional matrix, the function computes the quality (i.e. mean squared-deviation between          ##
 ##                  initial functional distance and standardized distance in the functional space) for the best functional     ##
-##                  dendrogram and all the multidimensional functional spaces from 2 to N dimensions (N selected by the user). ## 
+##                  dendrogram and all the multidimensional functional spaces from 2 to N dimensions (N selected by the user). ##
 ##                  A graphical output illustrating the quality of each functional space is also provided.                     ##                               ##                                                                                                                             ##
 ##  Code by Eva Maire & Sébastien Villéger (sebastien.villeger@cnrs.fr). Last update on 2016-04-29                             ##
 ##  Best functional dendrogram is computed using the GFD function written by F. Guilhaumon (see Mouchet et al. 2008, Oikos)    ##
@@ -72,7 +76,7 @@ require(gtools)
 
 # sourcing GFD function to compute the best dendrogram
 source("http://villeger.sebastien.free.fr/R%20scripts/GFD_matcomm.R")  ; GFD<-GFD_matcomm
-################################################################################################################################# 
+#################################################################################################################################
 
 # checking data
 if (sum(is.na(mat_funct))!=0)   {  stop(" NA are not allowed in 'funct_mat' ")     }
@@ -98,7 +102,7 @@ mat_dissim<-daisy(mat_funct, metric=tolower(metric), weights=traits_weights )
 # lists to store distances matrices
 dist_raw<-list()
 dist_st<-list()
-  
+
 ################################################################
 # computing PCoA using Caillez correction
 mat_pcoa<-pcoa(mat_dissim , correction="cailliez")
@@ -111,13 +115,13 @@ mat_coord<-mat_pcoa$vectors[,1:nbdim]
 row.names(mat_coord)<-row.names(mat_funct)
 colnames(mat_coord)<-paste("PC",1:nbdim,sep="")
 
-# computing Euclidean distances between species in the (nbdim-1) multidimensionnal functional spaces 
-for (k in 2:nbdim) 
+# computing Euclidean distances between species in the (nbdim-1) multidimensionnal functional spaces
+for (k in 2:nbdim)
     {
     eval(parse(text=paste("dist_",k,"D<-dist(mat_coord[,1:",k,"],method='euclidean')", sep="")))
     eval(parse(text=paste("dist_raw$m_",k,"D<-dist_",k,"D", sep="")))
     } # end of k
-  
+
 ################################################################
 # computing the best functional dendrogram using the GFD function and keeping the cophenetic distances between species on this tree
 alg_best_tree<-NA
@@ -150,7 +154,7 @@ if (dendro==TRUE)
 
 
 # for muldimensionnal spaces
-for (k in 2:nbdim)  
+for (k in 2:nbdim)
   {
   eval(parse(text=paste("y<-dist_",k,"D",sep="")))
   yst<- y/max(y) * max(x)
@@ -159,9 +163,9 @@ for (k in 2:nbdim)
   }  # end of k
 
 # list of outputs
-res<-list(meanSD=meanSD, details_funct_space=list(mat_dissim=mat_dissim, mat_coord=mat_coord, 
+res<-list(meanSD=meanSD, details_funct_space=list(mat_dissim=mat_dissim, mat_coord=mat_coord,
               alg_best_tree=alg_best_tree, best_tree=best_tree, dist_raw=dist_raw, dist_st=dist_st )  )
-  
+
 ################################################################################################################################
 # GRAPHICS if plot has a name
 ################################################################################################################################
@@ -178,12 +182,12 @@ if (nbdim>7 & nbdim<=11) {jpeg(paste(plot,".jpeg",sep=""), res=300, width=2400, 
 if (nbdim>11 & nbdim<=15) {jpeg(paste(plot,".jpeg",sep=""), res=300, width=2400, height=2400)
                           layout(matrix(c(1:(nbdim+1),rep(0,15-nbdim)),4,4,T)) ; layout.show(nbdim+1) }
 if (nbdim>15) { jpeg(paste(plot,".jpeg",sep=""), res=300, width=2400, height=2400)
-  layout(matrix(1:16,4,4,T)) ; layout.show(16) ; meanSD_plot<-meanSD[1:15]}	
+  layout(matrix(1:16,4,4,T)) ; layout.show(16) ; meanSD_plot<-meanSD[1:15]}
 
 par(mar=c(4,4,3,3))
-  
-# change in meanSD with increasing number of dimensions  
-barplot(height=meanSD,names.arg=names(meanSD), xlab="Functional space", ylab= "Quality (Mean SD)", 
+
+# change in meanSD with increasing number of dimensions
+barplot(height=meanSD,names.arg=names(meanSD), xlab="Functional space", ylab= "Quality (Mean SD)",
         space=0, cex.names=0.7, col=c("red", rep("blue",nbdim-1) ) )
 
 # quality of each functional space
@@ -193,30 +197,30 @@ x<-mat_dissim # functional distances
 if (dendro==TRUE)
   {
   eval(parse(text=paste("yst<-dist_st$t_",alg_best_tree, sep="")))
-  plot(x,yst, xlab=paste(metric, "distance"), ylab= "Cophenetic distance", xlim=c(0,max(x)), ylim=c(0,max(yst)), 
-        pch=21, col="red", bg="red", cex=0.3, cex.axis=0.8, cex.lab=0.9 )	
+  plot(x,yst, xlab=paste(metric, "distance"), ylab= "Cophenetic distance", xlim=c(0,max(x)), ylim=c(0,max(yst)),
+        pch=21, col="red", bg="red", cex=0.3, cex.axis=0.8, cex.lab=0.9 )
   abline(a=0,b=1)
   title(main=paste(alg_best_tree, "   mSD=",round(meanSD[paste("t_",alg_best_tree,sep="")],4),sep=""), cex.main=1.1, col.main="red", line=0.5   )
   }# end of if compute dendrograms
 
 # multidimensional spaces quality
-for (k in 2:min(nbdim,15) )  
+for (k in 2:min(nbdim,15) )
   {
   eval(parse(text=paste("yst<-dist_st$m_",k,"D",sep="")))
-  plot(x,yst, xlab=paste(metric, "distance"), ylab= "Euclidean distance", xlim=c(0,max(x)), ylim=c(0,max(yst)), 
-          pch=21, col="blue", bg="blue", cex=0.3, cex.axis=0.8, cex.lab=0.9  )	
+  plot(x,yst, xlab=paste(metric, "distance"), ylab= "Euclidean distance", xlim=c(0,max(x)), ylim=c(0,max(yst)),
+          pch=21, col="blue", bg="blue", cex=0.3, cex.axis=0.8, cex.lab=0.9  )
   abline(a=0,b=1)
   title(main=paste(paste(k,"D",sep=""),"   mSD=",round(meanSD[paste("m_",k,"D",sep="")],4),sep=""), cex.main=1.1, col.main="blue", line=0.5  )
-  }  # end of k	
+  }  # end of k
 
 
 graphics.off()
-  
+
 } # end of of plot
- 
+
 ################################################################################################################################
 ################################################################################################################################
-   
+
 invisible(res)
 
 } # end of function quality_funct_space

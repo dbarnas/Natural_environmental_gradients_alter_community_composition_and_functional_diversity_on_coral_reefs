@@ -1,12 +1,11 @@
 ### Comparing functional presence and volume across each quadrat
 
 ### This script creates and exports a dataframe of Species Richness,
-### Functional Entity Richness, and Functional Volume for each CowTagID
+### Functional Entity Richness, and Functional Volume for each survey location
 
 ## Calculate convex hull (modified Teixido script)
-#### Calculate convex hull
 
-### Created by Danielle Barnas
+### Modified by Danielle Barnas
 ### Created November 2022
 ### Modified February 26, 2023
 
