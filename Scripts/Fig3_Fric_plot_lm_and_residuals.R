@@ -126,11 +126,11 @@ plotFun <- function(Y){
 # Supplemental Figure 1A-F
 ###############################
 
-a <- plotFun("NbSpP") + labs(y = "% Sp Richness") + theme(axis.title.x = element_blank())
+a <- plotFun("NbSpP") + labs(y = "% Taxon Richness") + theme(axis.title.x = element_blank())
 b <- plotFun("NbFEsP") + labs(y = "% FE Richness") + theme(axis.title.x = element_blank())
 c <- plotFun("Vol8D") + labs(y = "% FE Volume")
 
-d <- plotFun("resSpp") + labs(y = "% Sp Richness (res)") + theme(axis.title.x = element_blank())
+d <- plotFun("resSpp") + labs(y = "% Taxon Richness (res)") + theme(axis.title.x = element_blank())
 e <- plotFun("resFEp") + labs(y = "% FE Richness (res)") + theme(axis.title.x = element_blank())
 f <- plotFun("resVol") + labs(y = "% FE Volume (res)")
 
@@ -173,7 +173,7 @@ plotfun <-function(data = resFric, y){
 
 ## Relative non-normalized richness
 rug_SpR_plot <- plotfun(y = NbSpP) +
-  labs(y = "% SR") +
+  labs(y = "% TR") +
   theme(axis.title.x = element_blank()) +
   ylim(min = 0, max = 100)
 
@@ -194,7 +194,7 @@ rugosityplot
 ## Relative richness and volume residuals
 rug_res_SpRp_plot <- plotfun(y = resSpp) +
   geom_hline(yintercept = 0, linetype = "dashed") +
-  labs(y = "% SR residuals",
+  labs(y = "% TR residuals",
        x = "")
 
 rug_res_FERp_plot <- plotfun(y = resFEp) +
@@ -212,9 +212,10 @@ rugosityresplot
 
 #### SAVE FIGURE 3
 
-divPlots <- rugosityplot / rugosityresplot #+
-  #plot_annotation(tag_levels = 'A')
+divPlots <- rugosityplot / rugosityresplot +
+  plot_annotation(tag_levels = 'A')
 divPlots
 ggsave(here("Output", "PaperFigures", "Fig3_LM_diversity_Phosphate.png"), divPlots, height = 6, width = 10)
+
 
 
