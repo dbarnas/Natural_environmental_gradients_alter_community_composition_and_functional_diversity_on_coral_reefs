@@ -125,14 +125,14 @@ mypal <- pnw_palette("Starfish", n = 2)
 
 modelTableData <- modelTable %>%
   group_by(Y) %>%
-  mutate(Y = if_else(Y == "resSpp", "% Species Richness (res)",
+  mutate(Y = if_else(Y == "resSpp", "% Taxon Richness (res)",
              if_else(Y == "resFEp", "% FE Richness (res)",
              if_else(Y == "resVol", "% FE Volume (res)",
-             if_else(Y == "NbSpP", "% Species Richness",
+             if_else(Y == "NbSpP", "% Taxon Richness",
              if_else(Y == "NbFEsP", "% FE Richness",
              if_else(Y == "Vol8D", "% FE Volume", Y)))))),
-         Y = factor(Y, levels = c('% Species Richness', '% FE Richness', '% FE Volume',
-                                  '% Species Richness (res)', '% FE Richness (res)', '% FE Volume (res)')),
+         Y = factor(Y, levels = c('% Taxon Richness', '% FE Richness', '% FE Volume',
+                                  '% Taxon Richness (res)', '% FE Richness (res)', '% FE Volume (res)')),
          #Parameter = if_else(Parameter == "meanRugosity", "Rugosity", Parameter),
          Reg_Type = factor(Reg_Type, levels = c("Polynomial", "Linear")),
          Parameter = factor(Parameter,
@@ -145,7 +145,7 @@ modelTableData <- modelTable %>%
          deltaAICc = AICc - minAICc)
 
 AICplot <- modelTableData %>%
-  filter(Y== "% Species Richness" | Y == "% FE Richness" | Y== "% FE Volume") %>%
+  filter(Y== "% Taxon Richness" | Y == "% FE Richness" | Y== "% FE Volume") %>%
   ggplot(aes(x = deltaAICc, y = fct_reorder(Parameter, desc(Parameter)), fill = Reg_Type)) +
   geom_col(position = "dodge", color = "black") +
   facet_wrap(~Y) +
@@ -167,7 +167,7 @@ AICplot <- modelTableData %>%
 
 
 AICplotres <- modelTableData %>%
-  filter(Y== "% Species Richness (res)" | Y == "% FE Richness (res)" | Y== "% FE Volume (res)") %>%
+  filter(Y== "% Taxon Richness (res)" | Y == "% FE Richness (res)" | Y== "% FE Volume (res)") %>%
   ggplot(aes(x = deltaAICc, y = fct_reorder(Parameter, desc(Parameter)), fill = Reg_Type)) +
   geom_col(position = "dodge", color = "black") +
   facet_wrap(~Y) +
