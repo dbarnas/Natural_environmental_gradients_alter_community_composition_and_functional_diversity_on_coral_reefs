@@ -89,19 +89,12 @@ mychem <- mychem %>%
          pH = log(pH + 0.0001))
 
 
-#############################
-# ANOSIM - grouped by AlphaTag
-#############################
-
-#anosim(ab.sgd, mygroup$rel, distance = "bray", permutations = 9999)
-
-
 
 
 #############################
-# ANOSIM - along Phosphate
+# ANOSIM
 #############################
-# along continuous parameter: Mantel Test
+# along continuous parameters: Mantel Test
 
 ### Now we have to convert these subsets into distance matrices.
 
@@ -122,9 +115,11 @@ dist.var = dist(df.resFric, method = "euclidean") # if I want to color points by
 abund_chemSR = mantel(dist.abund, dist.chem, method = "spearman", permutations = 9999, na.rm = TRUE)
 abund_chemSR # p > 0.05
 
-#### The point of this figure will be to visualize the correlation between two corresponding matrices of data. Each point in these pairwise scatter plots will represent the difference between two samples
+#### The point of this figure will be to visualize the correlation between two corresponding matrices of data.
+#### Each point in these pairwise scatter plots will represent the difference between two samples
 
-# Next, I need to convert these distance matrices (multiple columns) into vectors (one column), and then combine these matrices into one new data frame mat
+# Next, I need to convert these distance matrices (multiple columns) into vectors (one column),
+# and then combine these matrices into one new data frame mat
 
 aa = as.vector(dist.abund)
 tt = as.vector(dist.chem)
@@ -139,7 +134,7 @@ matSR = data.frame(aa,tt,gg)
 #abundance vs temperature
 mmSR = ggplot(matSR, aes(y = aa, x = tt)) +
   geom_point(size = 3, alpha = 0.5, shape = 21, aes(fill = gg)) +
-  labs(x = "Biogeochemical Dissimilarity", y = "Bray-Curtis Dissimilarity", fill = "% TR Dissimilarity") + #fill = expression("PO"[4]^"3-")) +
+  labs(x = "Biogeochemical Dissimilarity", y = "Bray-Curtis Dissimilarity", fill = "% Species Richness\n         Dissimilarity") +
   theme( axis.text.x = element_text(face = "bold",colour = "black", size = 12),
          axis.text.y = element_text(face = "bold", size = 11, colour = "black"),
          axis.title= element_text(face = "bold", size = 14, colour = "black"),
@@ -170,7 +165,7 @@ ab.sgd <- ab.sgd %>%
   summarise(pCover = sum(pCover)) %>%
   pivot_wider(names_from = FE, values_from = pCover)
 
-# order cowtagid's
+# order CowTagID's
 ab.sgd <- ab.sgd %>%
   left_join(alphatag) %>%
   mutate(AlphaTag = factor(AlphaTag, levels = myorder)) %>%
@@ -191,19 +186,9 @@ set.seed(7)
 
 
 #############################
-# ANOSIM - grouped by AlphaTag
+# ANOSIM
 #############################
-
-# ref: anosim(m_com, pc$Time, distance = "bray", permutations = 9999)
-#anosim(ab.sgd, mygroup$rel, distance = "bray", permutations = 9999)
-
-
-
-
-#############################
-# ANOSIM - along Phosphate
-#############################
-# along continuous parameter: Mantel Test
+# along continuous parameters: Mantel Test
 
 ### Now we have to convert these subsets into distance matrices.
 
@@ -231,9 +216,11 @@ abund_chemFER # p < 0.05
 
 # Pairwise scatterplot
 
-#### The point of this figure will be to visualize the correlation between two corresponding matrices of data. Each point in these pairwise scatter plots will represent the difference between two samples
+#### The point of this figure will be to visualize the correlation between two corresponding matrices of data.
+#### Each point in these pairwise scatter plots will represent the difference between two samples
 
-# Next, I need to convert these distance matrices (multiple columns) into vectors (one column), and then combine these matrices into one new data frame mat
+# Next, I need to convert these distance matrices (multiple columns) into vectors (one column),
+# and then combine these matrices into one new data frame mat
 
 aa = as.vector(dist.abund)
 tt = as.vector(dist.chem)
@@ -248,7 +235,7 @@ matFER = data.frame(aa,tt,gg)
 #abundance vs temperature
 mmFER = ggplot(matFER, aes(y = aa, x = tt)) +
   geom_point(size = 3, alpha = 0.5, shape = 21, aes(fill = gg)) +
-  labs(x = "Biogeochemical Dissimiliarity", y = "Bray-Curtis Dissimilarity", fill = "% FER Dissimilarity") + #fill = expression("PO"[4]^"3-")) +
+  labs(x = "Biogeochemical Dissimiliarity", y = "Bray-Curtis Dissimilarity", fill = "% FE Richness\n   Dissimilarity") +
   theme( axis.text.x = element_text(face = "bold",colour = "black", size = 12),
          axis.text.y = element_text(face = "bold", size = 11, colour = "black"),
          axis.title= element_text(face = "bold", size = 14, colour = "black"),
