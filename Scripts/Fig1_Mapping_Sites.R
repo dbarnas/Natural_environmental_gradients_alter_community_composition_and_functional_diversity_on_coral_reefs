@@ -93,7 +93,8 @@ MooreaMapPlot <- ggmap(MooreaMap) + # base map
 
   labs(x = "Longitude", y = "Latitude") +
 
-  geom_text(data = LocationGPS, aes(label = Location), color = "white", hjust = -0.4, size = 6) + # adds Location names to the right of the boxes
+  # geom_text(data = LocationGPS, aes(label = Location), color = "white", hjust = -0.4, size = 6) + # adds Location names to the right of the boxes
+  geom_text(data = LocationGPS, aes(label = "Study site"), color = "white", hjust = -0.2, size = 5.5) + # adds Location names to the right of the boxes
 
   geom_segment(x = LocationGPS$lon[1] + 0.006, y = LocationGPS$lat[1], xend = LocationGPS$lon[1] + 0.023, yend = LocationGPS$lat[1], color = "white", size = 1) +  # adds horizontal line from edge of box to Location name
 
@@ -108,7 +109,7 @@ MooreaMapPlot <- ggmap(MooreaMap) + # base map
 
 MooreaMapPlot
 
-#ggsave(here("Output", "PaperFigures", "Moorea_Map.png"), MooreaMapPlot,height = 10, width = 10)
+ #ggsave(here("Output", "PaperFigures", "Moorea_Map.png"), MooreaMapPlot,height = 10, width = 10)
 
 
 
@@ -173,7 +174,6 @@ mypalette <- (pnw_palette(name = "Bay", n = 19))
 Varari_kriging <- allchem %>%
   left_join(meta_adj) %>%
   droplevels() %>%
-  #left_join(alphatag) %>%
   select(lat, lon, AlphaTag, Phosphate_umolL) %>% # select the values that are important for the kriging
   pivot_longer(cols = Phosphate_umolL, names_to = "Parameter", values_to = "Values") %>%
   group_nest(Parameter) %>% # the parameters to group by
@@ -189,7 +189,7 @@ Varari_kriging <- allchem %>%
                         scale_color_gradientn(colors = mypalette,
                                               trans = "log") + # log transform pred
                         coord_sf() +
-                        labs(color = "CV Phosphate",
+                        labs(color = "Phosphate \nCoefficient of Variance (%)",
                              x = "Longitude",y = "Latitude") +
                         theme(axis.line=element_blank(),
                               axis.text = element_text(size = 10),
@@ -197,9 +197,10 @@ Varari_kriging <- allchem %>%
                               #legend.position = "right",
                               panel.grid.major = element_line(color = 'white', linetype = "dashed",size = 0.5),
                               plot.background=element_rect(fill='white'),
-                              legend.position = c(.25, .99),
+                              legend.position = c(.42, .99),
                               legend.justification = c("right", "top"),
                               legend.box.just = "right",
+                              legend.key.size = unit(0.2, 'cm')
                               #legend.margin = margin(6, 6, 6, 6)
                               ) +
                         # add arrow outline
@@ -237,6 +238,7 @@ mymaps <- krigPlot + inset_element(MooreaMapPlot,
                                    right = 1, top = 1.1) +
   plot_annotation(tag_levels = list(c('B','A'))) + # moorea labeled A, overlaid atop varari labeled B
   theme(plot.tag = element_text(size = c(15,14)))
+
 mymaps
 
 ggsave(here("Output","PaperFigures","Fig1_Maps.jpeg"),mymaps, height = 6, width = 6, device = "jpeg")
