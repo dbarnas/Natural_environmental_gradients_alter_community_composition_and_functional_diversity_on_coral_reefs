@@ -1,0 +1,65 @@
+---
+title: "Table 1. Taxonomic and functional groups representing functional traits identified within the surveyed community."
+author: "Danielle Barnas"
+date: "2023-06-15"
+output: html_document
+---
+
+```{r setup}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE, comment = FALSE)
+```
+
+
+### Table 1: Table of functional traits in categorical groups
+
+```{r}
+###############################
+# LOAD LIBRARIES
+###############################
+library(tidyverse)
+library(here)
+
+# For dev version
+#devtools::install_github("haozhu233/kableExtra", force = TRUE)
+library(kableExtra)
+
+
+###############################
+# READ IN DATA
+###############################
+fgroups <- read_csv(here("Data", "Table1_functional_groups.csv"))
+
+
+
+###############################
+# PROCESS FOR TABLE
+###############################
+
+
+fgroups <- fgroups %>% 
+  select(Morphology:`Trophic Group`) %>% 
+  mutate_at(.vars = vars(Phyla:`Trophic Group`), 
+            .funs = ~if_else(is.na(.), " ", .))
+
+
+
+###############################
+# CREATE TABLE
+###############################
+TraitTable <- fgroups %>% 
+  kbl() %>% 
+  kable_classic(html_font = "Times New Roman",
+                font_size = 20) %>% 
+  row_spec(0, italic = TRUE, bold = TRUE) %>% 
+  column_spec(1:4, background = "white")
+
+TraitTable
+```
+```{r, eval = FALSE}
+TraitTable %>% 
+  as_image(file = here("Output", "PaperFigures", "Table1_FunctionalGroups.png"))
+```
+
+
+
+
