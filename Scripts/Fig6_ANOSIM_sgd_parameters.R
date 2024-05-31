@@ -134,7 +134,7 @@ matSR = data.frame(aa,tt,gg)
 #abundance vs temperature
 mmSR = ggplot(matSR, aes(y = aa, x = tt)) +
   geom_point(size = 3, alpha = 0.5, shape = 21, aes(fill = gg)) +
-  labs(x = "Biogeochemical Dissimilarity", y = "Bray-Curtis Dissimilarity", fill = "% Species Richness\n         Dissimilarity") +
+  labs(x = "Biogeochemical Dissimilarity", y = "Bray-Curtis Dissimilarity", fill = "% Taxon Richness\n         Dissimilarity") +
   theme( axis.text.x = element_text(face = "bold",colour = "black", size = 12),
          axis.text.y = element_text(face = "bold", size = 11, colour = "black"),
          axis.title= element_text(face = "bold", size = 14, colour = "black"),
