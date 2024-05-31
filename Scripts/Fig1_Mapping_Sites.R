@@ -180,8 +180,17 @@ Varari_kriging <- allchem %>%
   mutate(preds = map(data, ~Krig_function_safe(dat_in = .x, poly = V_kml)), # run the function for every nested group
          longname = paste(Parameter),
          plots = map2(preds, longname, ~ggmap(VarariBaseMap)+
-                        geom_point(data=.x$result, aes(x=x, y=y, colour=pred), size=4, alpha=0.5) +
-                        geom_label(data = alphameta, aes(x=lon, y=lat, label = AlphaTag), size = 4) +
+                        geom_point(data=.x$result,
+                                   aes(x=x,
+                                       y=y,
+                                       colour=pred),
+                                   size=4,
+                                   alpha=0.5) +
+                        geom_label(data = alphameta,
+                                   aes(x=lon,
+                                       y=lat,
+                                       label = AlphaTag),
+                                   size = 4) +
                         geom_label(data = seeppt,
                                    aes(x = lon, y = lat + 0.00001),
                                    label = "Seep\nA",
@@ -189,13 +198,15 @@ Varari_kriging <- allchem %>%
                         scale_color_gradientn(colors = mypalette,
                                               trans = "log") + # log transform pred
                         coord_sf() +
-                        labs(color = "Phosphate \nCoefficient of Variance (%)",
+                        labs(color = "Phosphate \nCoefficient of Variation (%)",
                              x = "Longitude",y = "Latitude") +
                         theme(axis.line=element_blank(),
                               axis.text = element_text(size = 10),
                               axis.title = element_text(size = 15),
                               #legend.position = "right",
-                              panel.grid.major = element_line(color = 'white', linetype = "dashed",size = 0.5),
+                              panel.grid.major = element_line(color = 'white',
+                                                              linetype = "dashed",
+                                                              size = 0.5),
                               plot.background=element_rect(fill='white'),
                               legend.position = c(.42, .99),
                               legend.justification = c("right", "top"),
