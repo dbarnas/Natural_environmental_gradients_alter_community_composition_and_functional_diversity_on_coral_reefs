@@ -173,17 +173,17 @@ plotfun <-function(data = resFric, y){
 
 ## Relative non-normalized richness
 rug_SpR_plot <- plotfun(y = NbSpP) +
-  labs(y = "% TR") +
+  labs(y = "% Taxon Richness") +
   theme(axis.title.x = element_blank()) +
   ylim(min = 0, max = 100)
 
 rug_FER_plot <- plotfun(y = NbFEsP) +
-  labs(y = "% FER") +
+  labs(y = "% FE Richness") +
   theme(axis.title.x = element_blank()) +
   ylim(min = 0, max = 100)
 
 rug_Vol_plot <- plotfun(y = Vol8D) +
-  labs(y = "% FEV") +
+  labs(y = "% FE Volume") +
   theme(axis.title.x = element_blank()) +
   ylim(min = 0, max = 100)
 
@@ -194,17 +194,17 @@ rugosityplot
 ## Relative richness and volume residuals
 rug_res_SpRp_plot <- plotfun(y = resSpp) +
   geom_hline(yintercept = 0, linetype = "dashed") +
-  labs(y = "% TR residuals",
+  labs(y = "% Taxon Richness residuals",
        x = "")
 
 rug_res_FERp_plot <- plotfun(y = resFEp) +
   geom_hline(yintercept = 0, linetype = "dashed") +
-  labs(y = "% FER residuals",
-       x = expression("CV Phosphate ("*mu*"mol/L)"))
+  labs(y = "% FE Richness residuals",
+       x = expression("CV Phosphate (%)"))
 
 rug_res_Vol_plot <- plotfun(y = resVol) +
   geom_hline(yintercept = 0, linetype = "dashed") +
-  labs(y = "% FEV residuals",
+  labs(y = "% FE Volume residuals",
        x = "")
 
 rugosityresplot <- rug_res_SpRp_plot + rug_res_FERp_plot + rug_res_Vol_plot
