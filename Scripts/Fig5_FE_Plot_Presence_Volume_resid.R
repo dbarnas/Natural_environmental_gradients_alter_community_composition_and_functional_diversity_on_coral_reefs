@@ -311,11 +311,11 @@ fd.coord.sgd.tibble <- as_tibble(rownames_to_column(as.data.frame(fd.coord.sgd.f
 
 ## View functional trait faceted figures
 fe_group_pcoa <- fd.coord.sgd.tibble %>%
-  separate(FE, into = c('Phyla','Morphology','Calcification','Energetic Resource'),
+  separate(FE, into = c('Phyla','Morphology','Calcification','Trophic Group'),
            sep = ",", remove = F) %>%
-  pivot_longer(cols = 'Phyla':'Energetic Resource', names_to = "Group", values_to = "Trait")
+  pivot_longer(cols = 'Phyla':'Trophic Group', names_to = "Group", values_to = "Trait")
 fe_group_pcoa$Group <- factor(fe_group_pcoa$Group,
-                              levels = c("Phyla", "Morphology", "Calcification", "Energetic Resource"))
+                              levels = c("Phyla", "Morphology", "Calcification", "Trophic Group"))
 plot_fe_group_pcoa <- fe_group_pcoa %>%
   ggplot(aes(x = PC1, y = PC2)) +
   geom_point(shape = 21, fill = "darkgrey") +
@@ -332,13 +332,13 @@ plot_fe_group_pcoa <- fe_group_pcoa %>%
   facet_wrap(~Group)
 plot_fe_group_pcoa
 
-#ggsave(here("Output", "PaperFigures", "Fig5b_FE_grouped_pcoa.png"), plot_fe_group_pcoa, width = 6, height = 6)
+ggsave(here("Output", "PaperFigures", "Fig5b_FE_grouped_pcoa.png"), plot_fe_group_pcoa, width = 6, height = 6)
 
 
 #### PATCH PLOTS TOGETHER FOR FIGURE 5
 
-Figure5 <- fig5adist / plot_fe_group_pcoa #+
-  #plot_annotation(tag_levels = "A")
+Figure5 <- fig5adist / plot_fe_group_pcoa +
+  plot_annotation(tag_levels = "A")
 Figure5
 
 ggsave(here("Output", "PaperFigures", "Fig5_FEV_pcoa.png"),Figure5, device = "png", width = 6, height = 10)
@@ -350,7 +350,7 @@ po4_scale <- redchem %>%
   ggplot(aes(x = NN_umolL, y = Phosphate_umolL, color = Phosphate_umolL)) +
   geom_point() +
   scale_colour_gradientn(colours = apal) +
-  labs(color = expression("CV Phosphate ("*mu*"mol/L)")) +
+  labs(color = expression("CV Phosphate (%)")) +
   theme(legend.key.size = unit(2, 'cm'),
         legend.text = element_text(size = 18),
         legend.title = element_text(size = 20))
