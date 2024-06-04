@@ -76,8 +76,8 @@ cvreef <- tabData %>%
   # primary points
   geom_point(aes(x = StatParam, y = CVMean), color = "black", size = 3) +
   geom_errorbar(aes(ymin = CVMean-SE, ymax = CVMean+SE), width = 0.1) +
-  labs(y = "Coefficient of Variation of \nphysicochemical variables",
-       color = expression("CV Phosphate ("*mu*"mol/L)")) +
+  labs(y = "CV of physicochemical variables",
+       color = expression("CV Phosphate (%)")) +
   theme_classic() +
   theme(strip.background = element_rect(fill = "white"),
         axis.title.x = element_blank(),
