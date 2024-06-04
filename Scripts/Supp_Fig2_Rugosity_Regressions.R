@@ -51,16 +51,16 @@ resFric <- reg.Fric %>%
 
 ### Supplemental Figure 2a:
 
-parameter_list <- list("NN_umolL" = expression(paste("Nitrate+Nitrite ("*mu*"mol/L)")),
-                       "Phosphate_umolL" = expression(paste("Phosphate ("*mu*"mol/L)")),
-                       "Silicate_umolL" = expression(paste("Silicate ("*mu*"mol/L)")),
+parameter_list <- list("NN_umolL" = "Nitrate+Nitrite",
+                       "Phosphate_umolL" = "Phosphate",
+                       "Silicate_umolL" = "Silicate",
                        "Salinity" = "Salinity",
                        "pH" = "pH",
-                       "Temperature" = expression(paste("Temperature ("*degree*"C)")))
+                       "Temperature" = "Temperature")
 parameter_labeller <- function(variable,value){
   return(parameter_list[value])
 }
-supp2A <- resFric %>%
+supp2A3 <- resFric %>%
   select(-TA) %>%
   pivot_longer(cols = c(Salinity:NN_umolL), names_to = "Parameters", values_to = "Values") %>%
   mutate(Parameters = factor(Parameters, levels = c('NN_umolL', 'Phosphate_umolL', 'Silicate_umolL', 'Salinity', 'pH', 'Temperature'))) %>%
