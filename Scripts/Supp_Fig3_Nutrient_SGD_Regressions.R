@@ -41,38 +41,55 @@ resFric <- resFric %>%
 # VISUALIZATION
 ###############################
 
-parameter_list <- list("NN_umolL" = expression(paste("Nitrate+Nitrite ("*mu*"mol/L)")),
-                       "Phosphate_umolL" = expression(paste("Phosphate ("*mu*"mol/L)")))
+parameter_list <- list("NN_umolL" = expression(paste("Nitrate+Nitrite (%)")),
+                       "Phosphate_umolL" = expression(paste("Phosphate (%)")))
 parameter_labeller <- function(variable,value){
   return(parameter_list[value])
 }
 
 supp3a <- resFric %>%
   select(CowTagID, Salinity, Phosphate_umolL, Silicate_umolL, NN_umolL) %>%
-  pivot_longer(cols = c(NN_umolL, Phosphate_umolL), names_to = "param", values_to = "values") %>%
-  ggplot(aes(x = Silicate_umolL, y = values)) +
+  ggplot(aes(x = Silicate_umolL, y = NN_umolL)) +
   geom_point(color = "black") +
   geom_smooth(method = "lm", color = "black") +
   theme_bw() +
   theme(strip.background = element_rect(fill = "white")) +
-  labs(x = expression("Silicate ("*mu*"mol/L)"),
-       y = "CV parameter values") +
-  facet_wrap(~param, scales = "free_y", labeller = parameter_labeller)
+  labs(x = "CV Silicate (%)",
+       y = "CV Nitrate+Nitrite (%)")
 
 supp3b <- resFric %>%
   select(CowTagID, Salinity, Phosphate_umolL, Silicate_umolL, NN_umolL) %>%
-  pivot_longer(cols = c(NN_umolL, Phosphate_umolL), names_to = "param", values_to = "values") %>%
-  ggplot(aes(x = Salinity, y = values)) +
+  ggplot(aes(x = Silicate_umolL, y = Phosphate_umolL)) +
   geom_point(color = "black") +
   geom_smooth(method = "lm", color = "black") +
   theme_bw() +
   theme(strip.background = element_rect(fill = "white")) +
-  labs(x = "Salinity (psu)",
-       y = "CV parameter values") +
-  facet_wrap(~param, scales = "free_y", labeller = parameter_labeller)
+  labs(x = "CV Silicate (%)",
+       y = "CV Phosphate (%)")
 
-plot_supp3 <- supp3a / supp3b #+
-  #plot_annotation(tag_levels = "A")
+supp3c <- resFric %>%
+  select(CowTagID, Salinity, Phosphate_umolL, Silicate_umolL, NN_umolL) %>%
+  ggplot(aes(x = Salinity, y = NN_umolL)) +
+  geom_point(color = "black") +
+  geom_smooth(method = "lm", color = "black") +
+  theme_bw() +
+  theme(strip.background = element_rect(fill = "white")) +
+  labs(x = "CV Salinity (%)",
+       y = "CV Nitrate+Nitrite (%)")
+
+supp3d <- resFric %>%
+  select(CowTagID, Salinity, Phosphate_umolL, Silicate_umolL, NN_umolL) %>%
+  ggplot(aes(x = Salinity, y = Phosphate_umolL)) +
+  geom_point(color = "black") +
+  geom_smooth(method = "lm", color = "black") +
+  theme_bw() +
+  theme(strip.background = element_rect(fill = "white")) +
+  labs(x = "CV Salinity (%)",
+       y = "CV Phosphate (%)")
+
+plot_supp3 <- (supp3a + supp3b) /
+              (supp3c + supp3d) +
+  plot_annotation(tag_levels = "A")
 plot_supp3
 
 ggsave(here("Output", "PaperFigures", "Supp_Fig3_Nutrients_SGD_Regressions.png"), plot_supp3, width = 6, height = 6, device = "png")
