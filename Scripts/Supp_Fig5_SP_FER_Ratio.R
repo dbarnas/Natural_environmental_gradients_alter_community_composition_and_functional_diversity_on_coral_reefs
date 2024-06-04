@@ -61,7 +61,7 @@ pRat <- resFric %>%
         axis.text = element_text(size = 12),
         axis.title.x = element_blank()) +
   theme(panel.grid = element_blank()) +
-  labs(y = "FER / SR")
+  labs(y = "FE richness / Taxon richness")
 
 ### With seepage point
 pRatSeep <- resFric %>%
@@ -74,15 +74,15 @@ pRatSeep <- resFric %>%
   theme(axis.title = element_text(size = 14),
         axis.text = element_text(size = 12)) +
   theme(panel.grid = element_blank()) +
-  labs(y = "FER / SR",
-       x = expression("CV Phosphate ("*mu*"mol/L)"))
+  labs(y = "FE richness / Taxon richness",
+       x = expression("CV Phosphate (%)"))
 
 ### Patch
-SpFERatio <- (pRat / pRatSeep) #+
-  #plot_annotation(tag_levels = 'A')
+SpFERatio <- (pRat / pRatSeep) +
+  plot_annotation(tag_levels = 'A')
 
 SpFERatio
 
 #### save plots
-ggsave(here("Output", "PaperFigures", "Supp_Fig6_SP_FER_Ratio.png"), SpFERatio, width = 6, height = 6, device = "png")
+ggsave(here("Output", "PaperFigures", "Supp_Fig5_SP_FER_Ratio.png"), SpFERatio, width = 6, height = 6, device = "png")
 
