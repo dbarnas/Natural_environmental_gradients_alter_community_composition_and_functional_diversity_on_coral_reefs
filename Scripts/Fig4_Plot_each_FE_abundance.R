@@ -253,14 +253,14 @@ pt2 <- myplot(Taxon_Group, taxonpalette) + theme(legend.position = "none")
 ppt <- ptplot(Taxon_Group, Phosphate_umolL) +
   geom_smooth(method = "lm", formula = "y~poly(x,2)", color = "black") +
   theme(strip.background = element_rect(fill = "white")) +
-  labs(x = expression("CV Phosphate ("*mu*"mol/L)"), title = "Phyla")
+  labs(x = "CV Phosphate (%)", title = "Phyla")
 npt <- ptplot(Taxon_Group, NN_umolL) +
   geom_smooth(method = "lm", formula = "y~poly(x,2)", color = "black") +
   theme(strip.background = element_rect(fill = "white")) +
-  labs(x = expression("CV Nitrate+Nitrite ("*mu*"mol/L)"), title = "Phyla")
+  labs(x = "CV Nitrate+Nitrite (%)", title = "Phyla")
 ppt_2 <- ptplot(Taxon_Group, Phosphate_umolL) +
   theme(strip.background = element_rect(fill = "white")) +
-  labs(x = expression("CV Phosphate ("*mu*"mol/L)"), title = "Phyla")
+  labs(x = "CV Phosphate (%)", title = "Phyla")
 
 #ggsave(here("Output", "PaperFigures", "taxa_nn.png"), npt, device = "png", width = 6, height = 6)
 
@@ -303,14 +303,14 @@ pm3 <- myplot(Morph2, morphpalette) + theme(legend.position = "none")
 ppm <- ptplot(Morph2, Phosphate_umolL) +
   geom_smooth(method = "lm", formula = "y~poly(x,2)", color = "black") +
   theme(strip.background = element_rect(fill = "white")) +
-  labs(x = expression("CV Phosphate ("*mu*"mol/L)"), title = "Morphology")
+  labs(x = "CV Phosphate (%)", title = "Morphology")
 npm <- ptplot(Morph2, NN_umolL) +
   geom_smooth(method = "lm", formula = "y~poly(x,2)", color = "black") +
   theme(strip.background = element_rect(fill = "white")) +
-  labs(x = expression("CV Nitrate+Nitrite ("*mu*"mol/L)"), title = "Morphology")
+  labs(x = "CV Nitrate+Nitrite (%)", title = "Morphology")
 ppm_2 <- ptplot(Morph2, Phosphate_umolL) +
   theme(strip.background = element_rect(fill = "white")) +
-  labs(x = expression("CV Phosphate ("*mu*"mol/L)"), title = "Morphology")
+  labs(x = "CV Phosphate (%)", title = "Morphology")
 
 #ggsave(here("Output", "PaperFigures", "morphology_phos.png"), ppm, device = "png", width = 6, height = 6)
 
@@ -396,14 +396,14 @@ pc <- myplot(Calc, calcpalette) + labs(fill = "Calcification")
 ppc <- ptplot(Calc, Phosphate_umolL) +
   geom_smooth(method = "lm", formula = "y~poly(x,2)", color = "black") +
   theme(strip.background = element_rect(fill = "white")) +
-  labs(x = expression("CV Phosphate ("*mu*"mol/L)"), title = "Calcification")
+  labs(x = "CV Phosphate (%)", title = "Calcification")
 npc <- ptplot(Calc, NN_umolL) +
   geom_smooth(method = "lm", formula = "y~x", color = "black") +
   theme(strip.background = element_rect(fill = "white")) +
-  labs(x = expression("CV Nitrate+Nitrite ("*mu*"mol/L)"), title = "Calcification")
+  labs(x = "CV Nitrate+Nitrite (%)", title = "Calcification")
 ppc_2 <- ptplot(Calc, Phosphate_umolL) +
   theme(strip.background = element_rect(fill = "white")) +
-  labs(x = expression("CV Phosphate ("*mu*"mol/L)"), title = "Calcification")
+  labs(x = "CV Phosphate (%)", title = "Calcification")
 
 #ggsave(here("Output", "PaperFigures", "calc_nn.png"), npc, device = "png", width = 6, height = 6)
 
@@ -452,18 +452,18 @@ summary(lm(pCover~poly(Phosphate_umolL,2), data = Full_data %>%
              filter(Calc == "Non-articulated")))
 
 
-# ENERGETIC RESOURCE
+# TROPHIC GROUP
 # stacked bar
-per <- myplot(ER, erpalette) + labs(fill = "Energetic \nResource")
+per <- myplot(ER, erpalette) + labs(fill = "Trophic \nGroup")
 
 # regression
 pper <- ptplot(ER, Phosphate_umolL) +
   theme(strip.background = element_rect(fill = "white")) +
-  labs(x = expression("CV Phosphate ("*mu*"mol/L)"), title = "Energetic Resource")
+  labs(x = "CV Phosphate (%)", title = "Trophic Group")
 nper <- ptplot(ER, NN_umolL) +
   geom_smooth(method = "lm", formula = "y~poly(x,2)", color = "black") +
   theme(strip.background = element_rect(fill = "white")) +
-  labs(x = expression("CV Nitrate+Nitrite ("*mu*"mol/L)"), title = "Energetic Resource")
+  labs(x = "CV Nitrate+Nitrite (%)", title = "Trophic Group")
 
 #ggsave(here("Output", "PaperFigures", "ER_nn.png"), nper, device = "png", width = 6, height = 6)
 
@@ -535,11 +535,13 @@ Figure4
 # SUPPLEMENTAL FIGURE 4
 #######################
 
-SuppFig4 <- (ppt) / (ppm) / (ppc + pper)
+SuppFig4 <- (ppt) / (ppm) / (ppc + pper) +
+   plot_annotation(tag_levels = 'A')
 SuppFig4
 ggsave(here("Output", "PaperFigures", "Supp_Fig4_Trait_LM.png"),SuppFig4, width = 8, height = 12)
 
-SuppFig4_noregression <- (ppt_2) / (ppm_2) / (ppc_2 + pper)
+SuppFig4_noregression <- (ppt_2) / (ppm_2) / (ppc_2 + pper)+
+  plot_annotation(tag_levels = 'A')
 SuppFig4_noregression
 ggsave(here("Output", "PaperFigures", "Supp_Fig4_Trait_noLM.png"),SuppFig4_noregression, width = 8, height = 12)
 
