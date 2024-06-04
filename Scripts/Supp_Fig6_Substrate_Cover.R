@@ -42,7 +42,7 @@ myorder <- chem$AlphaTag
 sub <- sub %>%
   mutate(AlphaTag = factor(AlphaTag, levels = myorder),
          substrate = if_else(substrate == "LiveCoral", "Live Coral",
-                             if_else(substrate == "DeadCoral", "Dead Coral", substrate)))
+                     if_else(substrate == "DeadCoral", "Dead Coral", substrate)))
 
 
 
@@ -65,4 +65,4 @@ subPlot <- sub %>%
 subPlot
 
 
-ggsave(here("Output", "PaperFigures", "Supp_Fig5_Substrate.png"), subPlot, device = "png", width = 6, height = 6)
+ggsave(here("Output", "PaperFigures", "Supp_Fig6_Substrate.png"), subPlot, device = "png", width = 6, height = 6)
