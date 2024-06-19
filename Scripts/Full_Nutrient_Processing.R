@@ -106,7 +106,7 @@ cv_data <- ReducedChemData %>%
 
 full_data <- mean_data %>%
   full_join(cv_data) %>%
-  mutate(CV = sd / Mean) %>%
+  mutate(CV = sd / Mean * 100) %>%
   select(-c(sd, Mean))
 
 
