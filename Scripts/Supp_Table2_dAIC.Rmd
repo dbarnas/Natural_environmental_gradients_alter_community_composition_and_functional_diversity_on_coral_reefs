@@ -48,9 +48,9 @@ AICtable <- modTable %>%
   kable_classic(html_font = "Times New Roman",
                 font_size = 20) %>% 
   row_spec(0, italic = TRUE, bold = TRUE) %>%  # header row
-  pack_rows("% SR", 1, 14) %>%
-  pack_rows("% FER", 15, 28) %>%
-  pack_rows("% FEV", 29, 42) %>%
+  pack_rows("% Taxon richness", 1, 14) %>%
+  pack_rows("% FE richness", 15, 28) %>%
+  pack_rows("% FE volume", 29, 42) %>%
   column_spec(1:6, background = "white")
 
 AICtable
