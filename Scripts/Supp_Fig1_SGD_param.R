@@ -56,39 +56,34 @@ tabData <- dataChem %>%
 #####################################################
 #####################################################
 
-mypal <- pnw_palette("Starfish", n=19)
-mypal2 <- pnw_palette("Starfish", n=7)[5]
-
-myPhos <- dataChem %>%
-  filter(Parameters == "Phosphate_umolL") %>%
+plotData <- tabData %>%
+  ungroup() %>%
+  filter(Location == "Reef") %>%
+  select(AlphaTag:CV) %>%
   pivot_wider(names_from = Parameters, values_from = CV)
 
-cvreef <- tabData %>%
-  left_join(myPhos) %>% #will color by phosphate
-  filter(Location == "Reef") %>%
-  mutate(Parameters = factor(Parameters,
-                             levels = c("Nitrate+Nitrite","Silicate","Phosphate","Salinity", "pH", "Temperature"))) %>%
-  mutate(StatParam = "CV") %>%
-  filter(Parameters != "Phosphate") %>%
-  ggplot(aes(x = Phosphate_umolL, y = CV)) +
-  geom_point() +
-  labs(y = "CV of physicochemical variables (%)",
-       x = "CV Phosphate (%)") +
-  theme_classic() +
-  theme(strip.background = element_rect(fill = "white"),
-        #axis.title.x = element_blank(),
-        axis.title.y = element_text(size = 12),
-        #axis.text.x = element_blank(),
-        axis.text.y = element_text(size = 10),
-        axis.ticks.x = element_blank()) +
-  facet_wrap(~Parameters, scales = "free_y")
-cvreef
+plot_fun <- function(param = "Salinity"){
+  mydata <- plotData %>%
+    select(AlphaTag, Phosphate, myParam = param)
 
-# add trend line for significant correlations
-lmcvreef <- cvreef + geom_smooth(method = "lm", color = "black")
+  ggplot(data = mydata,
+         aes(x = Phosphate, y = myParam)) +
+    geom_point() +
+    labs(y = paste("CV", param, "(%)")) +
+    theme_classic()
+}
 
-ggsave(here("Output", "PaperFigures", "Supp_Fig1_Reef_CV_Biogeochem.png"), cvreef, device = "png", height = 5, width = 7)
-#ggsave(here("Output", "PaperFigures", "Supp_Fig1_Reef_CV_Biogeochem_lm.png"), lmcvreef, device = "png", height = 5, width = 7)
+
+a <- plot_fun(param = "Silicate") + geom_smooth(method = "lm", color = "black") +theme(axis.title.x = element_blank())
+b <- plot_fun(param = "Salinity") + geom_smooth(method = "lm", color = "black") +theme(axis.title.x = element_blank())
+c <- plot_fun(param = "Nitrate+Nitrite") + geom_smooth(method = "lm", color = "black") +theme(axis.title.x = element_blank())
+d <- plot_fun(param = "pH") + geom_smooth(method = "lm", color = "black") +theme(axis.title.x = element_blank())
+e <- plot_fun(param = "Temperature") + labs(x = "CV Phosphate (%)")
+
+fullPlot <- (a + b + c) / (d + e + plot_spacer())
+fullPlot
+
+ggsave(here("Output", "PaperFigures", "Supp_Fig1_Reef_CV_Biogeochem.png"), fullPlot, device = "png", height = 5, width = 7)
 
 
 # quick stats
@@ -97,3 +92,32 @@ anova(lm(data = lmdat %>% filter(Parameters == "Salinity"), CV~Phosphate_umolL))
 anova(lm(data = lmdat %>% filter(Parameters == "pH"), CV~Phosphate_umolL))
 anova(lm(data = lmdat %>% filter(Parameters == "Silicate_umolL"), CV~Phosphate_umolL))
 anova(lm(data = lmdat %>% filter(Parameters == "NN_umolL"), CV~Phosphate_umolL))
+
+
+
+
+
+
+
+
+
+
+
+
+plotData <- tabData %>%
+  ungroup() %>%
+  filter(Location == "Reef") %>%
+  select(AlphaTag:CV) %>%
+  pivot_wider(names_from = Parameters, values_from = CV)
+
+plot_fun <- function(param = "Salinity"){
+  mydata <- plotData %>%
+    select(AlphaTag, Phosphate, myParam = param)
+
+  ggplot(data = mydata,
+         aes(x = Phosphate, y = myParam)) +
+  geom_point() +
+  labs(y = paste("CV", param, "(%)"),
+       x = "CV Phosphate (%)") +
+  theme_classic()
+}
