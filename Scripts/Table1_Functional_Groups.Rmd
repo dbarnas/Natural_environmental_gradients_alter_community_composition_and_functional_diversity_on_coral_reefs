@@ -39,7 +39,10 @@ fgroups <- read_csv(here("Data", "Table1_functional_groups.csv"))
 fgroups <- fgroups %>% 
   select(Morphology:`Trophic Group`) %>% 
   mutate_at(.vars = vars(Phyla:`Trophic Group`), 
-            .funs = ~if_else(is.na(.), " ", .))
+            .funs = ~if_else(is.na(.), " ", .)) %>% 
+  mutate(`Trophic Group` = if_else(`Trophic Group` == "Autotrophy", "Autotrophy (Auto)",
+                           if_else(`Trophic Group` == "Heterotrophy", "Heterotrophy (Het)",
+                           if_else(`Trophic Group` == "Mixotrophy", "Mixotrophy (Mix)",`Trophic Group`))))
 
 
 
