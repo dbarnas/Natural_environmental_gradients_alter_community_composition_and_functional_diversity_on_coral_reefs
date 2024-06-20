@@ -65,4 +65,4 @@ subPlot <- sub %>%
 subPlot
 
 
-ggsave(here("Output", "PaperFigures", "Supp_Fig6_Substrate.png"), subPlot, device = "png", width = 6, height = 6)
+ggsave(here("Output", "PaperFigures", "Supp_Fig5_Substrate.png"), subPlot, device = "png", width = 6, height = 6)
