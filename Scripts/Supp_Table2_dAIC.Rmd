@@ -35,7 +35,7 @@ modTable <- modelTable %>%
   mutate(Y = factor(Y, levels = c("NbSpP", "NbFEsP", "Vol8D", "resSpp", "resFEp", "resVol")),
          Parameter = factor(Parameter,
                             levels = c("Rugosity", "Phosphate", "Nitrate+Nitrite", "pH", "Salinity", "Silicate", "Temperature"))) %>% 
-  arrange(Y,Parameter) 
+  arrange(Y,`Delta AICc`) 
 ```
 ```{r}
 ###############################
