@@ -60,7 +60,7 @@ parameter_list <- list("NN_umolL" = "Nitrate+Nitrite",
 parameter_labeller <- function(variable,value){
   return(parameter_list[value])
 }
-supp2A3 <- resFric %>%
+supp2A <- resFric %>%
   select(-TA) %>%
   pivot_longer(cols = c(Salinity:NN_umolL), names_to = "Parameters", values_to = "Values") %>%
   mutate(Parameters = factor(Parameters, levels = c('NN_umolL', 'Phosphate_umolL', 'Silicate_umolL', 'Salinity', 'pH', 'Temperature'))) %>%
@@ -83,12 +83,12 @@ supp2A
 
 ## plot richness and volume to rugosity
 supp2B <- resFric %>%
-  rename('% Sp Richness' = NbSpP, '% FE Richness' = NbFEsP, '% FE Volume' = Vol8D) %>%
-  pivot_longer(cols = c('% Sp Richness', '% FE Richness', '% FE Volume'), names_to = "Parameters", values_to = "Values") %>%
-  mutate(Parameters = factor(Parameters, levels = c('% Sp Richness', '% FE Richness', '% FE Volume'))) %>%
+  rename('% Taxon Richness' = NbSpP, '% FE Richness' = NbFEsP, '% FE Volume' = Vol8D) %>%
+  pivot_longer(cols = c('% Taxon Richness', '% FE Richness', '% FE Volume'), names_to = "Parameters", values_to = "Values") %>%
+  mutate(Parameters = factor(Parameters, levels = c('% Taxon Richness', '% FE Richness', '% FE Volume'))) %>%
   ggplot(aes(x = meanRugosity, y = Values)) +#, color = NN_umolL)) +
   geom_point() +
-  geom_smooth(method = "lm", color = "black", formula = "y~poly(x,2)") +
+  geom_smooth(method = "lm", color = "black", formula = "y~log(x)") +
   facet_wrap(~Parameters, scales = "free") +
   theme_bw() +
   theme(strip.background = element_rect(fill = "white"),
@@ -100,6 +100,5 @@ supp2B
 #### save plots
 ggsave(here("Output", "PaperFigures", "Supp_Fig2A_CV_SGD_Param_Rugosity.png"), supp2A, width = 6, height = 6, device = "png")
 ggsave(here("Output", "PaperFigures", "Supp_Fig2B_Diversity_Rugosity.png"), supp2B, width = 6, height = 6, device = "png")
-
 
 
