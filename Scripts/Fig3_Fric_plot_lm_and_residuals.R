@@ -195,17 +195,20 @@ rugosityplot
 rug_res_SpRp_plot <- plotfun(y = resSpp) +
   geom_hline(yintercept = 0, linetype = "dashed") +
   labs(y = "% Taxon Richness residuals",
-       x = "")
+       x = "") +
+  ylim(min = -30, max = 40)
 
 rug_res_FERp_plot <- plotfun(y = resFEp) +
   geom_hline(yintercept = 0, linetype = "dashed") +
   labs(y = "% FE Richness residuals",
-       x = expression("CV Phosphate (%)"))
+       x = expression("CV Phosphate (%)")) +
+  ylim(min = -30, max = 40)
 
 rug_res_Vol_plot <- plotfun(y = resVol) +
   geom_hline(yintercept = 0, linetype = "dashed") +
   labs(y = "% FE Volume residuals",
-       x = "")
+       x = "") +
+  ylim(min = -30, max = 40)
 
 rugosityresplot <- rug_res_SpRp_plot + rug_res_FERp_plot + rug_res_Vol_plot
 rugosityresplot
