@@ -69,24 +69,31 @@ cvreef <- tabData %>%
   mutate(Parameters = factor(Parameters,
                              levels = c("Nitrate+Nitrite","Silicate","Phosphate","Salinity", "pH", "Temperature"))) %>%
   mutate(StatParam = "CV") %>%
-  ggplot(aes(x = StatParam, y = CVMean)) +
-  # raw points
-  geom_point(aes(x = StatParam, y = CV, color = Phosphate_umolL),
-             alpha = 0.6, position = position_jitter(width = 0.2)) +
-  # primary points
-  geom_point(aes(x = StatParam, y = CVMean), color = "black", size = 3) +
-  geom_errorbar(aes(ymin = CVMean-SE, ymax = CVMean+SE), width = 0.1) +
-  labs(y = "CV of physicochemical variables",
-       color = expression("CV Phosphate (%)")) +
+  filter(Parameters != "Phosphate") %>%
+  ggplot(aes(x = Phosphate_umolL, y = CV)) +
+  geom_point() +
+  labs(y = "CV of physicochemical variables (%)",
+       x = "CV Phosphate (%)") +
   theme_classic() +
   theme(strip.background = element_rect(fill = "white"),
-        axis.title.x = element_blank(),
+        #axis.title.x = element_blank(),
         axis.title.y = element_text(size = 12),
-        axis.text.x = element_blank(),
+        #axis.text.x = element_blank(),
         axis.text.y = element_text(size = 10),
         axis.ticks.x = element_blank()) +
-  scale_color_gradientn(colors = mypal) +
   facet_wrap(~Parameters, scales = "free_y")
 cvreef
 
+# add trend line for significant correlations
+lmcvreef <- cvreef + geom_smooth(method = "lm", color = "black")
+
 ggsave(here("Output", "PaperFigures", "Supp_Fig1_Reef_CV_Biogeochem.png"), cvreef, device = "png", height = 5, width = 7)
+#ggsave(here("Output", "PaperFigures", "Supp_Fig1_Reef_CV_Biogeochem_lm.png"), lmcvreef, device = "png", height = 5, width = 7)
+
+
+# quick stats
+lmdat <- dataChem %>% left_join(myPhos)
+anova(lm(data = lmdat %>% filter(Parameters == "Salinity"), CV~Phosphate_umolL))
+anova(lm(data = lmdat %>% filter(Parameters == "pH"), CV~Phosphate_umolL))
+anova(lm(data = lmdat %>% filter(Parameters == "Silicate_umolL"), CV~Phosphate_umolL))
+anova(lm(data = lmdat %>% filter(Parameters == "NN_umolL"), CV~Phosphate_umolL))
