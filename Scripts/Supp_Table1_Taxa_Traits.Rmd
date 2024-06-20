@@ -37,8 +37,7 @@ species_lit <- species_lit %>%
 species <- species_lit %>% 
   right_join(inTaxa) %>%  # make sure we only have species from Varari
   mutate(Taxa = if_else(Taxa == "Cyanobacteria", "Cyanobacteria unknown", Taxa)) %>% 
-  rename(Species = Taxa,
-         `Functional Entity` = FE)
+  rename(`Functional Entity` = FE)
 
 #### Unite columns with literature citations
 #### Use full phrasing for FE's
@@ -62,7 +61,7 @@ species <- species %>%
                               if_else(Energetic_Resource == "Het", "Heterotroph",
                               if_else(Energetic_Resource == "Mix", "Mixotroph", Energetic_Resource))),
          Source = if_else(is.na(Source), " ", Source)) %>% 
-  rename(`Energetic Resource` = Energetic_Resource) %>% 
+  rename(`Trophic Group` = Energetic_Resource) %>% 
   select(-Identification_notes)
 
 # split into two tables for separate pages
