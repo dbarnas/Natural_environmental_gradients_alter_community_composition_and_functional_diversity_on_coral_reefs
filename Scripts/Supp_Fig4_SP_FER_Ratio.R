@@ -84,5 +84,5 @@ SpFERatio <- (pRat / pRatSeep) +
 SpFERatio
 
 #### save plots
-ggsave(here("Output", "PaperFigures", "Supp_Fig5_SP_FER_Ratio.png"), SpFERatio, width = 6, height = 6, device = "png")
+ggsave(here("Output", "PaperFigures", "Supp_Fig4_SP_FER_Ratio.png"), SpFERatio, width = 6, height = 6, device = "png")
 
