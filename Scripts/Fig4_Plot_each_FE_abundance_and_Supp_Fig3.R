@@ -126,9 +126,7 @@ ptplot <- function(entity, param){
 
   plota <- my_data %>%
     ggplot(aes(x = indep, #!!independent,
-               y = pCover,
-               color = !!myfacet
-               )) +
+               y = pCover)) +
     geom_point() +
     theme_bw() +
     theme(panel.grid = element_blank(),
@@ -532,18 +530,18 @@ Figure4
  # ggsave(here("Output", "PaperFigures", "Plot_ER_dist.png"), per, width = 6, height = 3.5)
 
 #######################
-# SUPPLEMENTAL FIGURE 4
+# SUPPLEMENTAL FIGURE 3
 #######################
 
-SuppFig4 <- (ppt) / (ppm) / (ppc + pper) +
+SuppFig3 <- (ppt) / (ppm) / (ppc + pper) +
    plot_annotation(tag_levels = 'A')
-SuppFig4
-ggsave(here("Output", "PaperFigures", "Supp_Fig4_Trait_LM.png"),SuppFig4, width = 8, height = 12)
+SuppFig3
+ggsave(here("Output", "PaperFigures", "Supp_Fig3_Trait_LM.png"),SuppFig3, width = 8, height = 12)
 
-SuppFig4_noregression <- (ppt_2) / (ppm_2) / (ppc_2 + pper)+
+SuppFig3_noregression <- (ppt_2) / (ppm_2) / (ppc_2 + pper)+
   plot_annotation(tag_levels = 'A')
-SuppFig4_noregression
-ggsave(here("Output", "PaperFigures", "Supp_Fig4_Trait_noLM.png"),SuppFig4_noregression, width = 8, height = 12)
+SuppFig3_noregression
+ggsave(here("Output", "PaperFigures", "Supp_Fig3_Trait_noLM.png"),SuppFig3_noregression, width = 8, height = 12)
 
 
 
