@@ -12,8 +12,8 @@ FE,Taxon_Group,Morph2,Calc,ER
 "Cnidaria,Poly,NC,Mix",Cnidaria,Poly,NC,Mix
 "Rhodophyta,Br,Non-AC,Auto",Rhodophyta,Br,Non-AC,Auto
 "Cnidaria,Mas,Herm,Mix",Cnidaria,Mas,Herm,Mix
-"Chlorophyta,Br,AC,Auto",Chlorophyta,Br,AC,Auto
 "Porifera,Enc,NC,Het",Porifera,Enc,NC,Het
+"Chlorophyta,Br,AC,Auto",Chlorophyta,Br,AC,Auto
 "Phaeophyta,Enc,NC,Auto",Phaeophyta,Enc,NC,Auto
 "Cnidaria,Dig,Herm,Mix",Cnidaria,Dig,Herm,Mix
 "Phaeophyta,Fol,Non-AC,Auto",Phaeophyta,Fol,Non-AC,Auto
