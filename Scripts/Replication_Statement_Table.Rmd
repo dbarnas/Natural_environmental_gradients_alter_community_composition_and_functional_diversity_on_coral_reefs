@@ -1,0 +1,32 @@
+### Supplemental Table 1: Table of identified taxa with associated functional traits and references
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
+```
+
+```{r}
+###############################
+# LOAD LIBRARIES
+###############################
+library(tidyverse)
+library(here)
+library(kableExtra)
+
+
+###############################
+# CREATE TABLE
+###############################
+myTable <- tibble(`Scale of interest` = c("Community", "Taxon", "Functional entity"),
+       `Scale at which the factor of interest is applied` = c("Community (2 X 2m)", "Taxon", "Taxon"),
+       `Number of replicates at the appropriate scale` = c("20 across a continuous gradient", "Identified richness and abundance within a 200 point grid for each community", "Identified richness and abundance within a 200 point grid for each community"))
+
+Replication_Statement <- myTable %>% 
+  kbl() %>% 
+  kable_classic(html_font = "Times New Roman",
+                font_size = 20) %>% 
+  column_spec(1:3, background = "white")
+```
+```{r, eval = FALSE}
+Replication_Statement %>%
+  as_image(file = here("Output", "PaperFigures", "Replication_Statement.png"))
+```
