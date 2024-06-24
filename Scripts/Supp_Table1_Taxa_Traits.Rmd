@@ -65,8 +65,8 @@ species <- species %>%
   select(-Identification_notes)
 
 # split into two tables for separate pages
-sp1 <- species[1:26,]
-sp2 <- species[27:nrow(species),]
+sp1 <- species[1:24,]
+sp2 <- species[25:nrow(species),]
 
 speciesTable1 <- sp1 %>% 
   kbl() %>% 
