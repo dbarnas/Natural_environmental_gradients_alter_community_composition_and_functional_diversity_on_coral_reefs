@@ -83,15 +83,27 @@ e <- plot_fun(param = "Temperature") + labs(x = "CV Phosphate (%)")
 fullPlot <- (a + b + c) / (d + e + plot_spacer())
 fullPlot
 
-ggsave(here("Output", "PaperFigures", "Supp_Fig1_Reef_CV_Biogeochem.png"), fullPlot, device = "png", height = 5, width = 7)
+# ggsave(here("Output", "PaperFigures", "Supp_Fig1_Reef_CV_Biogeochem.png"), fullPlot, device = "png", height = 5, width = 7)
 
 
 # quick stats
-lmdat <- dataChem %>% left_join(myPhos)
-anova(lm(data = lmdat %>% filter(Parameters == "Salinity"), CV~Phosphate_umolL))
-anova(lm(data = lmdat %>% filter(Parameters == "pH"), CV~Phosphate_umolL))
-anova(lm(data = lmdat %>% filter(Parameters == "Silicate_umolL"), CV~Phosphate_umolL))
-anova(lm(data = lmdat %>% filter(Parameters == "NN_umolL"), CV~Phosphate_umolL))
+# lmdat <- dataChem %>% left_join(myPhos)
+lmdat <- dataChem %>%
+  filter(Parameters == "NN_umolL") %>%
+  rename(NN_umolL=CV) %>%
+  select(-Parameters) %>%
+  full_join(dataChem) %>%
+  filter(AlphaTag != "A")
+summary(lm(data = lmdat %>% filter(Parameters == "Phosphate_umolL"), CV~NN_umolL))
+
+lmdat <- dataChem %>%
+  filter(Parameters == "Salinity") %>%
+  rename(Salinity=CV) %>%
+  select(-Parameters) %>%
+  full_join(dataChem) %>%
+  filter(AlphaTag != "A")
+summary(lm(data = lmdat %>% filter(Parameters == "Phosphate_umolL"), CV~Salinity))
+summary(lm(data = lmdat %>% filter(Parameters == "NN_umolL"), CV~Salinity))
 
 
 
@@ -104,20 +116,21 @@ anova(lm(data = lmdat %>% filter(Parameters == "NN_umolL"), CV~Phosphate_umolL))
 
 
 
-plotData <- tabData %>%
-  ungroup() %>%
-  filter(Location == "Reef") %>%
-  select(AlphaTag:CV) %>%
-  pivot_wider(names_from = Parameters, values_from = CV)
 
-plot_fun <- function(param = "Salinity"){
-  mydata <- plotData %>%
-    select(AlphaTag, Phosphate, myParam = param)
-
-  ggplot(data = mydata,
-         aes(x = Phosphate, y = myParam)) +
-  geom_point() +
-  labs(y = paste("CV", param, "(%)"),
-       x = "CV Phosphate (%)") +
-  theme_classic()
-}
+# plotData <- tabData %>%
+#   ungroup() %>%
+#   filter(Location == "Reef") %>%
+#   select(AlphaTag:CV) %>%
+#   pivot_wider(names_from = Parameters, values_from = CV)
+#
+# plot_fun <- function(param = "Salinity"){
+#   mydata <- plotData %>%
+#     select(AlphaTag, Phosphate, myParam = param)
+#
+#   ggplot(data = mydata,
+#          aes(x = Phosphate, y = myParam)) +
+#   geom_point() +
+#   labs(y = paste("CV", param, "(%)"),
+#        x = "CV Phosphate (%)") +
+#   theme_classic()
+# }
