@@ -284,6 +284,7 @@ summary(lm(pCover~poly(Phosphate_umolL,2)*Taxon_Group, data = Full_data %>%
              filter(CowTagID!= "VSEEP") %>%
              group_by(CowTagID, Taxon_Group, NN_umolL, Phosphate_umolL) %>%
              summarise(pCover=sum(pCover))))
+# check turf (NS)
 summary(lm(pCover~poly(NN_umolL,2), data = Full_data %>%
              filter(CowTagID!= "VSEEP") %>%
              group_by(CowTagID, Taxon_Group, NN_umolL, Phosphate_umolL) %>%
@@ -342,6 +343,11 @@ summary(lm(pCover~poly(Phosphate_umolL,2), data = Full_data %>%
              filter(Morph2 == "Branching") %>%
              group_by(CowTagID, Phosphate_umolL) %>%
              summarise(pCover=sum(pCover))))
+summary(lm(pCover~poly(NN_umolL,2), data = Full_data %>%
+             filter(CowTagID!= "VSEEP") %>%
+             filter(Morph2 == "Branching") %>%
+             group_by(CowTagID, NN_umolL) %>%
+             summarise(pCover=sum(pCover))))
 
 summary(lm(pCover~poly(Phosphate_umolL,2), data = Full_data %>%
              filter(CowTagID!= "VSEEP") %>%
@@ -353,6 +359,11 @@ summary(lm(pCover~poly(Phosphate_umolL,2), data = Full_data %>%
              filter(CowTagID!= "VSEEP") %>%
              filter(Morph2 == "Filamentous") %>%
              group_by(CowTagID, Phosphate_umolL) %>%
+             summarise(pCover=sum(pCover))))
+summary(lm(pCover~poly(NN_umolL,2), data = Full_data %>%
+             filter(CowTagID!= "VSEEP") %>%
+             filter(Morph2 == "Filamentous") %>%
+             group_by(CowTagID, NN_umolL) %>%
              summarise(pCover=sum(pCover))))
 
 summary(lm(pCover~poly(Phosphate_umolL,2), data = Full_data %>%
@@ -433,16 +444,44 @@ summary(lm(pCover~poly(Phosphate_umolL,2)*Calc, data = Full_data %>%
              filter(CowTagID!= "VSEEP") %>%
              group_by(CowTagID, Calc, NN_umolL, Phosphate_umolL) %>%
              summarise(pCover=sum(pCover))))
+
 summary(lm(pCover~NN_umolL, data = Full_data %>%
              filter(CowTagID!= "VSEEP") %>%
              group_by(CowTagID, Calc, NN_umolL, Phosphate_umolL) %>%
              summarise(pCover=sum(pCover)) %>%
              filter(Calc == "Hermatypic")))
-summary(lm(pCover~Phosphate_umolL, data = Full_data %>%
+summary(lm(pCover~NN_umolL, data = Full_data %>%
+             filter(CowTagID!= "VSEEP") %>%
+             group_by(CowTagID, Calc, NN_umolL, Phosphate_umolL) %>%
+             summarise(pCover=sum(pCover)) %>%
+             filter(Calc == "Hermatypic")))
+# get logged stats for a logarithmic relationship (levels off at high sgd)
+summary(lm(pCover~log(NN_umolL), data = Full_data %>%
+             filter(CowTagID!= "VSEEP") %>%
+             group_by(CowTagID, Calc, NN_umolL, Phosphate_umolL) %>%
+             summarise(pCover=sum(pCover)) %>%
+             filter(Calc == "Hermatypic")))
+
+# ggplot(data = Full_data %>%
+#          filter(CowTagID!= "VSEEP") %>%
+#          group_by(CowTagID, Calc, NN_umolL, Phosphate_umolL) %>%
+#          summarise(pCover=sum(pCover)) %>%
+#          filter(Calc == "Hermatypic"),
+#          aes(x = Phosphate_umolL, y = pCover)) +
+#   geom_point() + geom_smooth(method = "lm", formula = "y~log(x)")
+
+
+summary(lm(pCover~poly(Phosphate_umolL,2), data = Full_data %>%
              filter(CowTagID!= "VSEEP") %>%
              group_by(CowTagID, Calc, NN_umolL, Phosphate_umolL) %>%
              summarise(pCover=sum(pCover)) %>%
              filter(Calc == "Non-calcifying")))
+summary(lm(pCover~NN_umolL, data = Full_data %>%
+             filter(CowTagID!= "VSEEP") %>%
+             group_by(CowTagID, Calc, NN_umolL, Phosphate_umolL) %>%
+             summarise(pCover=sum(pCover)) %>%
+             filter(Calc == "Non-calcifying")))
+
 summary(lm(pCover~poly(Phosphate_umolL,2), data = Full_data %>%
              filter(CowTagID!= "VSEEP") %>%
              group_by(CowTagID, Calc, NN_umolL, Phosphate_umolL) %>%
@@ -490,6 +529,7 @@ summary(lm(pCover~poly(Phosphate_umolL,2)*ER, data = Full_data %>%
              filter(CowTagID!= "VSEEP") %>%
              group_by(CowTagID, ER, NN_umolL, Phosphate_umolL) %>%
              summarise(pCover=sum(pCover))))
+# check (NS)
 summary(lm(pCover~poly(NN_umolL,2), data = Full_data %>%
              filter(CowTagID!= "VSEEP") %>%
              group_by(CowTagID, ER, NN_umolL, Phosphate_umolL) %>%
@@ -502,7 +542,7 @@ summary(lm(pCover~poly(NN_umolL,2), data = Full_data %>%
 mypval <- rbind(pv1,pv2,pv3,pv4,pv5,pv6,pv7,pv8)
 TraitSignif <- mypval %>%
   filter(pvalue1 < 0.07 | pvalue2 < 0.07)
-write_csv(TraitSignif, here("Output", "PaperFigures", "Trait_pVal.csv"))
+# write_csv(TraitSignif, here("Output", "PaperFigures", "Trait_pVal.csv"))
 
 #######################
 # FIGURE 4 BARPLOT
@@ -517,8 +557,9 @@ Figure4
 
 
 
-
  ggsave(here("Output", "PaperFigures", "Fig4_Plot_FEgroups.png"), Figure4, width = 7, height = 9)
+
+
 
  # ggsave(here("Output", "PaperFigures", "Plot_FEgroups_3.png"), Figure4, width = 6, height = 6)
  #
@@ -545,3 +586,49 @@ ggsave(here("Output", "PaperFigures", "Supp_Fig3_Trait_noLM.png"),SuppFig3_noreg
 
 
 
+
+#######################
+# CHECK DOMINANT TAXA ALONG SGD NUTRIENT GRADIENT
+#######################
+taxa_data_sum <- Full_data %>%
+  filter(CowTagID != "VSEEP") %>%
+  group_by(CowTagID, Taxa, Phosphate_umolL, NN_umolL) %>%
+  summarise(pCover = sum(pCover, na.rm = TRUE))
+
+### get significance values across taxa
+summary(lm(data = taxa_data_sum, pCover ~ poly(Phosphate_umolL,2)*Taxa))
+summary(lm(data = taxa_data_sum, pCover ~ poly(NN_umolL,2)*Taxa))
+
+### get specific r2
+# summary(lm(data = Full_data %>% filter(Taxa == "Montipora grisea"), pCover ~ poly(Phosphate_umolL,2)))
+# summary(lm(data = Full_data %>% filter(Taxa == "Montipora grisea"), pCover ~ poly(NN_umolL,2)))
+
+# summary(lm(data = Full_data %>% filter(Taxa == "Turf"), pCover ~ poly(Phosphate_umolL,2)))
+# summary(lm(data = Full_data %>% filter(Taxa == "Turf"), pCover ~ poly(NN_umolL,2))) # 0.065
+
+# summary(lm(data = Full_data %>% filter(Taxa == "Turbinaria ornata"), pCover ~ poly(Phosphate_umolL,2)))
+summary(lm(data = Full_data %>% filter(Taxa == "Turbinaria ornata"), pCover ~ poly(NN_umolL,2))) # poly
+
+summary(lm(data = Full_data %>% filter(Taxa == "Padina boryana"), pCover ~ poly(Phosphate_umolL,2))) # lm
+summary(lm(data = Full_data %>% filter(Taxa == "Padina boryana"), pCover ~ poly(NN_umolL,2))) # lm
+
+# summary(lm(data = Full_data %>% filter(Taxa == "Porites rus"), pCover ~ poly(Phosphate_umolL,2)))
+summary(lm(data = Full_data %>% filter(Taxa == "Porites rus"), pCover ~ poly(NN_umolL,2))) # 0.061
+
+
+# Phosphate
+taxa_data_sum %>%
+  filter(Taxa == "Montipora grisea" | Taxa == "Padina boryana") %>%
+  ggplot(aes(x = Phosphate_umolL, y = pCover)) +
+  geom_point() +
+  geom_smooth(method = "lm", formula = "y~poly(x,2)") +
+  facet_wrap(~Taxa, scales = "free")
+# N+N
+taxa_data_sum %>%
+  filter(Taxa == "Montipora grisea" | Taxa == "Padina boryana" |
+           Taxa == "Porites rus" | Taxa == "Turbinaria ornata" |
+           Taxa == "Turf") %>%
+  ggplot(aes(x = NN_umolL, y = pCover)) +
+  geom_point() +
+  geom_smooth(method = "lm", formula = "y~poly(x,2)") +
+  facet_wrap(~Taxa, scales = "free")
