@@ -72,15 +72,26 @@ summary(salModVol)
 
 ### Calculate regressions against Phosphate
 
-salModSpRp <- lm(NbSpP ~ poly(Phosphate_umolL,2), data=resFric) # relative species richness
-salModFERp <- lm(NbFEsP ~ poly(Phosphate_umolL,2), data=resFric) # relative entity richness
-salModVol <- lm(Vol8D ~ poly(Phosphate_umolL,2), data=resFric) # relative entity volume
+# raw values
+phsModSpRp <- lm(NbSpP ~ poly(Phosphate_umolL,2), data=resFric) # relative species richness
+phsModFERp <- lm(NbFEsP ~ poly(Phosphate_umolL,2), data=resFric) # relative entity richness
+phsModVol <- lm(Vol8D ~ poly(Phosphate_umolL,2), data=resFric) # relative entity volume
 
 #view model summary
-summary(salModSpRp) # .0499
-summary(salModFERp)# 0.061
-summary(salModVol) # 0.017
+summary(phsModSpRp) # .0499
+summary(phsModFERp)# 0.061
+summary(phsModVol) # 0.017
 
+# residual values
+# raw values
+resphsModSpRp <- lm(resSp ~ poly(Phosphate_umolL,2), data=resFric) # relative species richness
+resphsModFERp <- lm(resFEp ~ poly(Phosphate_umolL,2), data=resFric) # relative entity richness
+resphsModVol <- lm(resVol ~ poly(Phosphate_umolL,2), data=resFric) # relative entity volume
+
+#view model summary
+summary(resphsModSpRp) # .036
+summary(resphsModFERp)# 0.027
+summary(resphsModVol) # 0.013
 
 ###############################
 # MODEL RESIDUALS ~ SGD PARAMETERS
@@ -218,7 +229,7 @@ rugosityresplot
 divPlots <- rugosityplot / rugosityresplot +
   plot_annotation(tag_levels = 'A')
 divPlots
-ggsave(here("Output", "PaperFigures", "Fig3_LM_diversity_Phosphate.png"), divPlots, height = 6, width = 10)
+# ggsave(here("Output", "PaperFigures", "Fig3_LM_diversity_Phosphate.png"), divPlots, height = 6, width = 10)
 
 
 
