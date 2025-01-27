@@ -13,3 +13,4 @@ lon,NA,Longitude of survey locations recorded on a Garmin GPS
 dist_to_seep_m,meters (m),Linear distance from each survey location to the location labeled as SEEP
 adj_CT_depth_cm,centimeters (cm),Ajusted distance (or depth) measured from water surface to HOBO Conductiity-Temperature logger sensor at each survey location using a transect tape. Corrected for tidal changes
 meanRugosity,meters (m),"Average rugosity measured using a 2.03m link chain across 3 randomly chosen lines within the survey box of each survey location. Values range from 0-1, with 0 indicating higher substrate complexity and 1 indicating a flat surface"
+complexity,meters (m),Average rugosity subtracted from 1 as an indication of structural complexity of the reef surface
