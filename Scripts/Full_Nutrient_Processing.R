@@ -62,6 +62,10 @@ ReducedChemData <- AugChem %>%
   # remove clearly incorrect value of Ammonia_umolL at V17 (false analytical value)
   filter(Ammonia_umolL < 16)
 
+## Write csv ####
+write_csv(ReducedChemData, here("Data","Biogeochem","Nutrients_Processed_All_Tides.csv"))
+
+
 
 ##### Summarise: Max and Min of parameters across seasons ####
 
@@ -109,13 +113,22 @@ full_data <- mean_data %>%
   mutate(CV = sd / Mean * 100) %>%
   select(-c(sd, Mean))
 
+full_data_sd <- mean_data %>%
+  full_join(cv_data) %>%
+  select(Location:Parameters, sd)
+
 
 #### Reformat wide ####
 full_data <- full_data %>%
   pivot_wider(names_from = Parameters, values_from = CV)
 
+full_data_sd <- full_data_sd %>%
+  pivot_wider(names_from = Parameters, values_from = sd)
+
+full_data_mean <- mean_data %>%
+  pivot_wider(names_from = Parameters, values_from = Mean)
+
 
 ## Write csv ####
 write_csv(full_data, here("Data","Biogeochem","Nutrients_Processed_All.csv"))
-
 

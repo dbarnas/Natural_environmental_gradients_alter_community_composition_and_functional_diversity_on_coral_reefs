@@ -2,7 +2,7 @@
 
 ### Created by Danielle Barnas
 ### Created on December 14, 2022
-### Modified March 5, 2023
+### Modified on February 23, 2025
 
 ###############################
 # LOAD LIBRARIES
@@ -21,32 +21,30 @@ library(pairwiseAdonis)
 ###############################
 # READ IN DATA
 ###############################
-alphatag <- read_csv(here("Data","CowTag_to_AlphaTag.csv")) %>% mutate(AlphaTag = if_else(CowTagID == "VSEEP", "A-Seep",AlphaTag))
 traits <- read_csv(here("Data", "Surveys","Distinct_Taxa.csv"))
 comp <- read_csv(here("Data", "Surveys", "Species_Composition_2022.csv"))
 meta <- read_csv(here("Data", "Full_Metadata.csv"))
+alphatag <- meta %>% select(CowTagID, AlphaTag) %>% mutate(AlphaTag = if_else(CowTagID == "VSEEP", "A−Seep",AlphaTag))
 chem <- read_csv(here("Data","Biogeochem", "Nutrients_Processed_All.csv"))
 # richness, % richness of community pool, and % volume of community pool
-Fric <- read_csv(here("Data", "Sp_FE_Vol.csv"))
 resFric <- read_csv(here("Data", "Sp_FE_Vol_res.csv"))
 # PCoA axes of traits
 fd.coord.sgd <- read.csv(here("Data","FE_4D_coord.csv"), row.names = 1) # class data.frame
-# FE with trait groups
-fes_traits.sgd <- read_csv(here("Data", "Distinct_FE.csv"))
 # species abundances (%) wide format
 myspecies <- read_csv(here("Data", "Species_Abundances_wide.csv"))
-# species and functional entities
-species_entities <- read_csv(here("Data", "Species_FE.csv"))
+# taxa with functional entities and traits
+species_fe_traits <- read_csv(here("Data", "Distinct_Taxa_FEtraits.csv"))
 
+# FE with trait groups
+fes_traits.sgd <- species_fe_traits %>% select(FE, Taxon_Group:ER) %>% distinct()
+# taxa with functional entities and traits
+species_entities <- species_fe_traits %>% select(Taxa, FE)
 
 
 
 ###############################
 # CLEANING AND ANALYSIS
 ###############################
-meta <- meta %>% # fill in seep rugosity value
-  mutate(meanRugosity = if_else(CowTagID == "VSEEP", 0.97, meanRugosity))
-
 chem <- chem %>%
   filter(Location == "Varari",
          CowTagID != "V13")
@@ -75,8 +73,7 @@ sgd.sp <- as.data.frame(sgd.sp)
 
 # order CowTagID's by distance from the seepage point (matching the map orientation)
 tagOrder <- meta %>%
-  filter(CowTagID != "V13") %>%
-  arrange(dist_to_seep_m) %>% # set arrange factor
+  arrange(AlphaTag) %>% # set arrange factor
   select(CowTagID) %>%
   left_join(alphatag)
 # set cowtag order as arrange factor order
@@ -164,12 +161,12 @@ disc.redchem <- redchem %>%
   select(-c(NbSp:NbFEsP, resSp:resFEp)) %>%
   mutate(Phosphate_umolL = as.character(round(Phosphate_umolL,3))) %>%
   mutate(NN_umolL = as.character(round(NN_umolL,3))) %>%
+  mutate(NN_umolL = as.numeric(NN_umolL)) %>% # Phosphate_umolL
   arrange(resVol) %>%
   left_join(alphatag)
-names(alphapalette) <- (disc.redchem  %>% arrange(Phosphate_umolL) %>% mutate(nAlphaTag = AlphaTag))$nAlphaTag
-names(mypalette) <- (disc.redchem %>% arrange(Phosphate_umolL) %>% mutate(nAlphaTag = AlphaTag))$nAlphaTag
-myOrder <- (disc.redchem %>% arrange(Phosphate_umolL))$AlphaTag
-#volumeOrder <- (disc.redchem %>% arrange(resVol))$AlphaTag
+names(alphapalette) <- (disc.redchem  %>% arrange(NN_umolL) %>% mutate(nAlphaTag = AlphaTag))$nAlphaTag
+names(mypalette) <- (disc.redchem %>% arrange(NN_umolL) %>% mutate(nAlphaTag = AlphaTag))$nAlphaTag
+myOrder <- (disc.redchem %>% arrange(NN_umolL))$AlphaTag
 volumeOrder <- (disc.redchem %>% arrange(Vol8D))$AlphaTag
 
 
@@ -182,20 +179,16 @@ All.ch.tib <- All.ch.tib %>%
   mutate(Area = polyarea(x,y)) %>%
   mutate(nAlphaTag = factor(AlphaTag, levels = names(alphapalette))) %>%
   mutate(AlphaTag = factor(AlphaTag, levels = myOrder))
-#AreaOrder <- unique(All.ch.tib$AlphaTag)
 #All.ch.tib$AlphaTag <- factor(All.ch.tib$AlphaTag, levels = AreaOrder) # arrange facet by polygon area
 
-#PolyArea <- All.ch.tib %>%
-#  mutate(AlphaTag, Area)
+
 
 All.m.sgd <- All.m.sgd %>%
   rbind(seep.mid.m.sgd) %>%
   left_join(alphatag) %>%
   select(-CowTagID) %>%
-#  left_join(PolyArea) %>%
   mutate(nAlphaTag = factor(AlphaTag, levels = names(alphapalette)),
          AlphaTag = factor(AlphaTag, levels = myOrder))
-#         AlphaTag = factor(AlphaTag, levels = AreaOrder))
 
 
 
@@ -214,7 +207,6 @@ qAll <- All.ch.tib %>%
   facet_wrap(~AlphaTag) +
   xlim(min(fd.coord.sgd[,1]), max(fd.coord.sgd[,1])) + ylim(min(fd.coord.sgd[,2]), max(fd.coord.sgd[,2])) +
   theme(strip.background = element_rect(fill = "white"))
-qAll
 
 
 ### COMBINE VOLUME FIGURE FROM Presence SCRIPT WITH ABOVE TO INCLUDE POLYGON
@@ -223,8 +215,7 @@ qAll
 #load data
 ab.sgd <- read_csv(here("Data", "Species_Abundances_wide.csv"))
 ab.sgd <- as.data.frame(column_to_rownames(ab.sgd, var = 'CowTagID')) # move tag names to rownames and make data.frame class
-spe_fes.sgd <- as.data.frame(read_csv(here("Data", "Species_FE.csv")))
-#alphatag <- read_csv(here("Data","CowTag_to_AlphaTag.csv"))
+spe_fes.sgd <- species_fe_traits %>% select(Taxa, FE) %>% as.data.frame()
 
 ################################## Data manipulation and arrangements
 
@@ -252,22 +243,22 @@ ab.conditions.sgd <- ab.conditions.sgd2 %>%
 ###########################################################################
 
 ## FACET ORDERED BY RESIDUAL VOLUME
-## COLORED BY PHOSPHATE
+## COLORED BY NITRATE + NITRITE
 
-# Figure 5A. Overall distribution of FE abundance across the functional space colored by Phosphate_umolL
+# Figure 3A. Overall distribution of FE abundance across the functional space colored by NN_umolL
 
-# order alpha tag by phosphate levels and volume residuals
+# order alpha tag by nitrate + nitrite levels and volume residuals
 n.alphatag <- alphatag %>% mutate(nAlphaTag = factor(alphatag$AlphaTag, levels = names(alphapalette))) %>% select(-AlphaTag)
 alphatag$AlphaTag <- factor(alphatag$AlphaTag, levels = myOrder)
 
 ## relative abundance in ggplot
-fig5.fd.sgd <- rownames_to_column(as.data.frame(fd.coord.sgd), var = "FE") %>%
+fig3.fd.sgd <- rownames_to_column(as.data.frame(fd.coord.sgd), var = "FE") %>%
   full_join(ab.conditions.sgd2) %>%
   left_join(alphatag) %>%
   left_join(n.alphatag) %>%
   arrange(AlphaTag)
 
-fig5adist <- fig5.fd.sgd %>%
+fig3adist <- fig3.fd.sgd %>%
   filter(pCover > 0) %>%
   ggplot(aes(x = PC1, y = PC2)) +
   geom_point(aes(size = pCover,
@@ -275,7 +266,7 @@ fig5adist <- fig5.fd.sgd %>%
                  fill = nAlphaTag),
              shape = 21,
              show.legend = FALSE) + # shape of a filable circle. lets us fill with alpha values
-  geom_polygon(data = All.ch.tib %>% left_join(n.alphatag),
+  geom_polygon(data = All.ch.tib %>% left_join(n.alphatag) %>% drop_na(),
                aes(x = x, y = y,
                    color = nAlphaTag),
                alpha = 0.5,
@@ -292,14 +283,13 @@ fig5adist <- fig5.fd.sgd %>%
   scale_fill_manual(values = alphapalette) +
   scale_color_manual(values = mypalette)
 
-fig5adist
-
-#ggsave(here("Output", "PaperFigures", "Fig5a_Vol_Abund_PCoA_PO4.png"), fig5adist, height = 6, width = 7)
+fig3adist
+ggsave(here("Output", "Fig3a_Vol_Abund_PCoA_NN.png"), fig3adist, height = 6, width = 7)
 
 
 
 #####################################
-# FIGURE 5B FE POINTS PCOA
+# FIGURE 3B FE POINTS PCOA
 #####################################
 
 fd.coord.sgd.fe <- read.csv(here("Data","FE_4D_coord.csv"), row.names = 1) # class data.frame
@@ -316,6 +306,8 @@ fe_group_pcoa <- fd.coord.sgd.tibble %>%
   pivot_longer(cols = 'Phyla':'Trophic Group', names_to = "Group", values_to = "Trait")
 fe_group_pcoa$Group <- factor(fe_group_pcoa$Group,
                               levels = c("Phyla", "Morphology", "Calcification", "Trophic Group"))
+
+
 plot_fe_group_pcoa <- fe_group_pcoa %>%
   ggplot(aes(x = PC1, y = PC2)) +
   geom_point(shape = 21, fill = "darkgrey") +
@@ -332,76 +324,34 @@ plot_fe_group_pcoa <- fe_group_pcoa %>%
   facet_wrap(~Group)
 plot_fe_group_pcoa
 
-ggsave(here("Output", "PaperFigures", "Fig5b_FE_grouped_pcoa.png"), plot_fe_group_pcoa, width = 6, height = 6)
+ggsave(here("Output", "Fig3b_FE_grouped_pcoa.png"), plot_fe_group_pcoa, width = 6, height = 6)
 
 
-#### PATCH PLOTS TOGETHER FOR FIGURE 5
+#### PATCH PLOTS TOGETHER FOR FIGURE 3
 
-Figure5 <- fig5adist / plot_fe_group_pcoa +
+Figure3 <- fig3adist / plot_fe_group_pcoa +
   plot_annotation(tag_levels = "A")
-Figure5
+Figure3
 
-ggsave(here("Output", "PaperFigures", "Fig5_FEV_pcoa.png"),Figure5, device = "png", width = 6, height = 10)
+# ggsave(here("Output", "Fig3_FEV_pcoa_NN.png"),Figure3, device = "png", width = 6, height = 10)
 
 
-# just to get the Phosphate scale bar
+# just to get the NN scale bar
 apal<-(pnw_palette("Bay"))
-po4_scale <- redchem %>%
-  ggplot(aes(x = NN_umolL, y = Phosphate_umolL, color = Phosphate_umolL)) +
+nn_scale <- redchem %>%
+  ggplot(aes(x = NN_umolL, y = Phosphate_umolL, color = NN_umolL)) +
   geom_point() +
   scale_colour_gradientn(colours = apal) +
-  labs(color = expression("CV Phosphate (%)")) +
+  labs(color = expression("CV N+N (%)")) +
   theme(legend.key.size = unit(2, 'cm'),
         legend.text = element_text(size = 18),
         legend.title = element_text(size = 20))
-ggsave(here("Output", "PaperFigures", "Fig5_Scale_bar.png"),po4_scale, device = "png", width = 6, height = 6)
+# ggsave(here("Output", "Fig3_Scale_bar.png"),nn_scale, device = "png", width = 6, height = 6)
 
 
 #########################################################################################################
 #########################################################################################################
 
-
-#####################
-# Blank figure with points and outline
-#####################
-blankPoly <- fig5.fd.sgd %>%
-  filter(pCover > 0) %>%
-  ggplot(aes(x = PC1, y = PC2)) +
-  geom_point(shape = 21, size = 4, fill = "grey") +
-  geom_polygon(data = All.ch.tib %>% filter(AlphaTag == "K"), # K, N, and S all have the same largest area
-               aes(x = x, y = y, color = AlphaTag),
-               alpha = 0.5,
-               fill = NA) + # no fill on the polygon
-  labs(x = "PCoA1", y = "PCoA2") +
-  theme_bw() +
-  xlim(-0.35, 0.65) +
-  ylim(-0.5, 0.5) +
-  theme(panel.grid = element_blank(),
-        legend.position = "none",
-        axis.text = element_text(size = 12),
-        axis.title = element_text(size = 14)) +
-  scale_color_manual(values = "black")
-
-
-blankPoly_small <- fig5.fd.sgd %>%
-  filter(pCover > 0) %>%
-  filter(AlphaTag == "D",
-         AlphaTag != "A-Seep") %>%
-  ggplot(aes(x = PC1, y = PC2)) +
-  geom_point(shape = 21, size = 4, fill = "grey") +
-  geom_polygon(data = All.ch.tib %>% filter(AlphaTag == "D"), # D has the smallest area after Seep
-               aes(x = x, y = y, color = AlphaTag),
-               alpha = 0.5,
-               fill = NA) + # no fill on the polygon
-  labs(x = "PCoA1", y = "PCoA2") +
-  xlim(-0.3, 0.6) +
-  ylim(-0.5, 0.5) +
-  theme_bw() +
-  theme(panel.grid = element_blank(),
-        legend.position = "none",
-        axis.text = element_text(size = 12),
-        axis.title = element_text(size = 14)) +
-  scale_color_manual(values = "black")
 
 
 #####################
@@ -434,87 +384,7 @@ dist_chem <- rownames_to_column(dist_FE, var = "FE") %>%
   mutate(comm_mean = mean(Avg_dist),
          var_from_mean = Avg_dist - comm_mean)
 
-summary(lm(data = dist_chem, var_from_mean ~ poly(NN_umolL,2)))
+summary(lm(data = dist_chem, var_from_mean ~ NN_umolL))
 
-ggplot(data = dist_chem,
-       aes(x = NN_umolL, y = Avg_dist)) +
-  geom_point() +
-  geom_smooth(method = "lm") +
-  geom_text_repel(aes(label = AlphaTag))
-
-
-
-###########################################################################
-## RESIDUALS AND NUTRIENTS
-###########################################################################
-
-
-# prepare chem data for joining other df for graphing
-redchem <- redchem %>%
-  left_join(alphatag) %>%
-  arrange(alphatag)
-
-
-summary(lm(data = resFric %>% left_join(redchem) %>% filter(CowTagID != "VSEEP"),
-           resSpp ~ poly(Phosphate_umolL, 2)))
-summary(lm(data = resFric %>% left_join(redchem) %>% filter(CowTagID != "VSEEP"),
-           resFEp ~ poly(Phosphate_umolL, 2)))
-summary(lm(data = resFric %>% left_join(redchem) %>% filter(CowTagID != "VSEEP"),
-           resVol ~ poly(Phosphate_umolL, 2)))
-
-# color palette assignment
-cols <- pnw_palette("Bay",20,type="continuous")
-#cols <- rev(cols) # reverse color pattern so high sgd gets red
-tagorder <- n.alphatag %>% arrange(nAlphaTag)
-names(cols) <- tagorder$nAlphaTag # name colors by Phosphate gradient
-
-# Supplemental Figure. Species and functional diversity changes along SGD gradient
-# All volumes in distinct plots
-# RESIDUALS
-pphos <- resFric %>%
-  left_join(redchem) %>%
-  left_join(n.alphatag) %>%
-  select('% SR' = resSpp, '% FER' = resFEp, '% FEV' = resVol, AlphaTag, nAlphaTag) %>%
-  pivot_longer(cols = 1:3, names_to = "Parameters", values_to = "Values") %>%
-  mutate(Parameters = factor(Parameters, levels = c("% SR", "% FER", "% FEV"))) %>%
-  # plot facet_wrapped
-  ggplot(aes(x = Parameters, y = Values, fill = nAlphaTag)) +
-  geom_col(color = "black") +
-  facet_wrap(~nAlphaTag) +
-  theme_bw() +
-  theme(panel.grid = element_blank(),
-        axis.text.x = element_text(angle = 90),
-        legend.position = "none") +
-  #ylim(0,100) +
-  scale_fill_manual(values = cols) +
-  geom_hline(yintercept = 0) +
-  labs(fill = "Survey Location", x = "", y = "Residual proportions (%)") +
-  theme(strip.background = element_rect(fill = "white"))
-pphos
-
-# RAW
-pphosRaw <- resFric %>%
-  left_join(redchem) %>%
-  left_join(n.alphatag) %>%
-  select('% SR' = NbSpP, '% FER' = NbFEsP, '% FEV' = Vol8D, AlphaTag, nAlphaTag) %>%
-  pivot_longer(cols = 1:3, names_to = "Parameters", values_to = "Values") %>%
-  mutate(Parameters = factor(Parameters, levels = c("% SR", "% FER", "% FEV"))) %>%
-  # plot facet_wrapped
-  ggplot(aes(x = Parameters, y = Values, fill = nAlphaTag)) +
-  geom_col(color = "black") +
-  facet_wrap(~nAlphaTag) +
-  theme_bw() +
-  theme(panel.grid = element_blank(),
-        axis.text.x = element_text(angle = 90),
-        legend.position = "none") +
-  ylim(0,100) +
-  scale_fill_manual(values = cols) +
-  labs(fill = "Survey Location", x = "", y = "Community Proportions (%)") +
-  geom_text(aes(x = Parameters, label = round(Values,0)),
-           size = 3, vjust = -0.4) +
-  theme(strip.background = element_rect(fill = "white"))
-pphosRaw
-
-pphosPlots <- pphosRaw / pphos
 
 

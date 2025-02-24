@@ -22,11 +22,17 @@ library(patchwork)
 ##### READ IN DATA #####
 meta <- read_csv(here("Data", "Full_Metadata.csv")) %>%
   filter(CowTagID != "V13")
+alpha <- meta %>% select(CowTagID, AlphaTag)
 allchem <- read_csv(here("Data","Biogeochem", "Nutrients_Processed_All.csv")) %>%
   filter(CowTagID != "V13")
 V_kml <- getKMLcoordinates(kmlfile=here("Data", "Polygons", "Varari_Polygon.kml"), ignoreAltitude=T)
 chem <- allchem %>%
   filter(CowTagID != "VSEEP")
+tide_chem <- read_csv(here("Data","Biogeochem", "Nutrients_Processed_All_Tides.csv")) %>%
+  filter(CowTagID != "V13",
+         CowTagID != "VSEEP") %>%
+  select(Location:NN_umolL) %>%
+  left_join(alpha)
 
 ##### MAP SITE LOCATIONS #####
 
@@ -76,7 +82,7 @@ VmapSites <- ggmap(VarariBaseMap) +
 
 VmapSites
 
-#ggsave(here("Output", "PaperFigures", "Varari_map_sites.png"), VmapSites, height = 6, width = 6, device = "png")
+# ggsave(here("Output", "Varari_map_sites.pdf"), VmapSites, height = 6, width = 6, device = "pdf")
 
 
 # Moorea
@@ -94,7 +100,7 @@ MooreaMapPlot <- ggmap(MooreaMap) + # base map
   labs(x = "Longitude", y = "Latitude") +
 
   # geom_text(data = LocationGPS, aes(label = Location), color = "white", hjust = -0.4, size = 6) + # adds Location names to the right of the boxes
-  geom_text(data = LocationGPS, aes(label = "Study site"), color = "white", hjust = -0.2, size = 5.5) + # adds Location names to the right of the boxes
+  geom_text(data = LocationGPS, aes(label = "Study site"), color = "white", hjust = -0.6, size = 5.5) + # hjust=-0.2, adds Location names to the right of the boxes
 
   geom_segment(x = LocationGPS$lon[1] + 0.006, y = LocationGPS$lat[1], xend = LocationGPS$lon[1] + 0.023, yend = LocationGPS$lat[1], color = "white", size = 1) +  # adds horizontal line from edge of box to Location name
 
@@ -109,7 +115,7 @@ MooreaMapPlot <- ggmap(MooreaMap) + # base map
 
 MooreaMapPlot
 
- #ggsave(here("Output", "PaperFigures", "Moorea_Map.png"), MooreaMapPlot,height = 10, width = 10)
+# ggsave(here("Output", "Moorea_Map.pdf"), MooreaMapPlot, height = 6, width = 6, device = "pdf")
 
 
 
@@ -164,7 +170,7 @@ alphameta <- meta_adj %>%
 # add point for seep
 seepptkrig <- seeppt %>%
   left_join(allchem) %>%
-  select(CowTagID, lat, lon, Phosphate_umolL)
+  select(CowTagID, lat, lon, NN_umolL) # Phosphate_umolL
 
 # create my palette
 mypalette <- (pnw_palette(name = "Bay", n = 19))
@@ -174,8 +180,13 @@ mypalette <- (pnw_palette(name = "Bay", n = 19))
 Varari_kriging <- allchem %>%
   left_join(meta_adj) %>%
   droplevels() %>%
-  select(lat, lon, AlphaTag, Phosphate_umolL) %>% # select the values that are important for the kriging
-  pivot_longer(cols = Phosphate_umolL, names_to = "Parameter", values_to = "Values") %>%
+  rename(Phosphate = Phosphate_umolL,
+         Silicate = Silicate_umolL,
+         `N+N` = NN_umolL) %>%
+  # select(lat, lon, AlphaTag, Phosphate_umolL) %>% # select the values that are important for the kriging
+  select(lat, lon, AlphaTag, Salinity:`N+N`) %>% # select the values that are important for the kriging
+  # pivot_longer(cols = Phosphate_umolL, names_to = "Parameter", values_to = "Values") %>%
+  pivot_longer(cols = Salinity:`N+N`, names_to = "Parameter", values_to = "Values") %>%
   group_nest(Parameter) %>% # the parameters to group by
   mutate(preds = map(data, ~Krig_function_safe(dat_in = .x, poly = V_kml)), # run the function for every nested group
          longname = paste(Parameter),
@@ -196,9 +207,11 @@ Varari_kriging <- allchem %>%
                                    label = "Seep\nA",
                                    fill = "white", size = 4) +
                         scale_color_gradientn(colors = mypalette,
-                                              trans = "log") + # log transform pred
+                                              trans = "log", # log transform pred
+                                              #n.breaks = 3
+                                              ) +
                         coord_sf() +
-                        labs(color = "Phosphate \nCoefficient of Variation (%)",
+                        labs(color = paste0({.y},"\nCoefficient of Variation (%)"),
                              x = "Longitude",y = "Latitude") +
                         theme(axis.line=element_blank(),
                               axis.text = element_text(size = 10),
@@ -211,7 +224,7 @@ Varari_kriging <- allchem %>%
                               legend.position = c(.42, .99),
                               legend.justification = c("right", "top"),
                               legend.box.just = "right",
-                              legend.key.size = unit(0.2, 'cm')
+                              legend.key.size = unit(0.3, 'cm')
                               #legend.margin = margin(6, 6, 6, 6)
                               ) +
                         # add arrow outline
@@ -225,20 +238,76 @@ Varari_kriging <- allchem %>%
                                          x = -149.8997, y = -17.54014),
                                      arrow = arrow(length = unit(0.5, "cm")),
                                      size = 2,
-                                     color = "white")
-                        ))
-#ggsave(here("output","August2021","Biogeochem", glue("Varari: {.y}.png")),plot)}))
-krigPlot <- Varari_kriging$plots[[1]]
+                                     color = "white") #+
+                        # ggtitle(glue("Varari: {.y}"))
+                      ))
 
-krigPlot
+for(i in 1:length(Varari_kriging$plots)){
+  try({
+    ggsave(plot = Varari_kriging$plots[[i]], file = here("Output","PaperFigures",paste0("Kriging_V_Map_",i,".png")), height = 6, width = 6, device = "png")}, silent = TRUE)
+}
+
+krigPlot <- Varari_kriging$plots[[1]] # 1=N+N 2=phosphate
+
+# ggsave(here("Output","Fig1_kriging.pdf"), krigPlot, height = 6, width = 6, device = "pdf")
 
 
-# for(i in 1:length(Varari_kriging$plots)){
-#   try({
-#     ggsave(plot = Varari_kriging$plots[[i]], file = here("Output","PaperFigures","Kriging_V_Map.png"), height = 6, width = 6, device = "png")}, silent = TRUE)
-# }
+
+### Plot other Biogeochemical parameters
+# first glace at all the parameters along the SGD (silicate) variability (CV) gradient
+meta %>%
+  select(Location, CowTagID, del15N:N_percent) %>%
+  right_join(chem) %>%
+  select(Location:NN_umolL) %>%
+  select(-C_N) %>%
+  pivot_longer(cols = c(del15N:N_percent, Salinity, Temperature:Phosphate_umolL, NN_umolL), names_to = "Parameters", values_to = "Values") %>%
+  ggplot(aes(x = Silicate_umolL, y = Values)) +
+  geom_point() +
+  geom_smooth(method = "lm", formula = "y~poly(x,2)") +
+  theme_bw() +
+  facet_wrap(~Parameters, scales = "free")
 
 
+# plot with tides
+plot.violin <- tide_chem %>%
+  unite(Tide, Day_Night,
+        sep = " ",
+        col = "Tide_DN",
+        remove = FALSE) %>%
+  select(Location, CowTagID, AlphaTag, Tide, Tide_DN,
+         `Salinity (psu)` = Salinity,
+         `Temperature (°C)` = Temperature,
+         pH,
+         `Phosphate (μmol/L)` = Phosphate_umolL,
+         `Silicate (μmol/L)` = Silicate_umolL,
+         `Nitrate+Nitrite (μmol/L)` = NN_umolL) %>%
+  pivot_longer(cols = c(`Salinity (psu)`:`Nitrate+Nitrite (μmol/L)`),
+               names_to = "Parameters",
+               values_to = "Values") %>%
+  drop_na(Parameters) %>% # removes two sample times without Salinity, Temperature, pH, and TA (retains nutrients)
+  mutate(Parameters = factor(Parameters, levels = c("Phosphate (μmol/L)",
+                                                    "Nitrate+Nitrite (μmol/L)",
+                                                    "Silicate (μmol/L)",
+                                                    "Salinity (psu)",
+                                                    "pH", #"TA",
+                                                    "Temperature (°C)"))) %>%
+  ggplot(aes(x = AlphaTag, y = Values)) +
+  geom_violin(fill = "azure3") +
+  theme_bw() +
+  theme(panel.grid = element_blank(),
+        strip.background = element_rect(fill = "white"),
+        strip.text = element_text(face = "bold",
+                                  size = 12),
+        axis.text.x = element_text(size = 10),
+        axis.text.y = element_text(size = 12),
+        axis.title = element_text(size = 14)) +
+  labs(x = "Sites (increasing distance from seep)",
+       y = "Parameter values",
+       color = "Sample Time") +
+  facet_wrap(~Parameters, scales = "free_y", ncol = 2)
+
+plot.violin
+ggsave(here("Output","Fig1_Violin_SGD.png"), plot.violin, height = 6, width = 6, device = "png")
 
 
 ### Patch maps for paper visual
@@ -252,6 +321,6 @@ mymaps <- krigPlot + inset_element(MooreaMapPlot,
 
 mymaps
 
-ggsave(here("Output","PaperFigures","Fig1_Maps.jpeg"),mymaps, height = 6, width = 6, device = "jpeg")
+ggsave(here("Output","Fig1_Maps.png"),mymaps, height = 6, width = 6, device = "png")
 
 

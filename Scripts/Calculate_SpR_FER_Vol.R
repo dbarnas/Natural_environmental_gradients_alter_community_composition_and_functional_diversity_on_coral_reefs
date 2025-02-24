@@ -29,8 +29,7 @@ meta <- read_csv(here("Data", "Full_Metadata.csv"))
 chem <- read_csv(here("Data","Biogeochem", "Nutrients_Processed_All.csv"))
 
 myspecies <- myspecies %>%
-  filter(Location == "Varari", # only analyze varari for now
-         #CowTagID != "VSEEP",
+  filter(Location == "Varari",
          CowTagID != "V13")
 
 # only cowtag ID's
@@ -44,27 +43,28 @@ quad.label <- myspecies %>%
 traits <- traits %>%
   full_join(myspecies) %>% # apply traits to species composition df
   filter(Location == "Varari",
-         #CowTagID != "VSEEP",
          CowTagID != "V13",
-         Identified == "yes",
-         Taxon_Group != "Hard Substrate" &
+         Taxon_Group != "Hard Substrate" & # bare rock and rubble
            Taxon_Group != "Sand") %>%
   select(Taxa,
          Taxon_Group,
          Morph2,
          Calc,
-         ER
+         ER # Energetic Resource aka Trophic Group
          ) %>%
   unite(col = "FE", Taxon_Group:ER, sep = ",", remove = F) %>%
   relocate(FE, .after = ER) %>%
   distinct()
 
-# write csv for all distinct FE combinations
-fes_traits.sgd <- traits %>%
-  select(FE = FE, Taxon_Group:ER) %>%
-  distinct()
+# write csv for all species with FE and traits
+write_csv(traits, here("Data", "Distinct_Taxa_FEtraits.csv"))
 
-write_csv(fes_traits.sgd, here("Data", "Distinct_FE.csv"))
+# # write csv for all distinct FE combinations
+# fes_traits.sgd <- traits %>%
+#   select(FE, Taxon_Group:ER) %>%
+#   distinct()
+#
+# write_csv(fes_traits.sgd, here("Data", "Distinct_FE.csv"))
 
 
 
@@ -92,12 +92,12 @@ write_csv(myspecies, here("Data", "Species_Abundances_wide.csv"))
 
 
 
-# select only for species and functional entities
-species_entities <- traits %>%
-  select(Taxa, FE)
-
-# write csv for species entities tied to FE
-write_csv(species_entities, here("Data", "Species_FE.csv"))
+# # select only for species and functional entities
+# species_entities <- traits %>%
+#   select(Taxa, FE)
+#
+# # write csv for species entities tied to FE
+# write_csv(species_entities, here("Data", "Species_FE.csv"))
 
 
 
@@ -147,7 +147,7 @@ cumsum(fit$eig[fit$eig >= 0]) / sum(fit$eig[fit$eig > 0])
 
 ## Calculate species and function entity richness
 
-# Species Richness within quadrats
+# Taxonomic Richness within quadrats
 sprich <- myspecies %>%
   pivot_longer(cols = Turf:ncol(.), names_to = "Taxa", values_to = "cover") %>% # reset to pivot by SGD
   distinct() %>%
@@ -186,7 +186,7 @@ species_entities <- as.data.frame(species_entities)
 
 ## Calculate convex hull (modified Teixido script)
 
-#### Calculate convex hull (Teixido script after I gave up at convhulln)
+#### Calculate convex hull
 
 Fric <- lapply(relative.sgd, function (x) {
 
@@ -212,10 +212,10 @@ names(Fric) = relative.sgd
 Fric <- do.call(rbind, Fric)
 
 colnames(Fric) <- c("NbSp", "NbSpP", "NbFEs","NbFEsP", "Vol8D")
-# Number of species per condition
-# percentage of species present per condition
-# number of functional entities present per condition
-# percentage of functional entities present per condition
+# Number of species per plot
+# percentage of species present per plot
+# number of functional entities present per plot
+# percentage of functional entities present per plot
 # percentage of functional space volume occupied
 
 Fric <- rownames_to_column(as.data.frame(Fric), var = "CowTagID")
@@ -225,21 +225,23 @@ Fric <- rownames_to_column(as.data.frame(Fric), var = "CowTagID")
 Fric
 SeepFric <- tibble(CowTagID = "VSEEP",
                    NbSp = 1,
-                   NbSpP = 1/51*100, # 51 total species
+                   NbSpP = 1/51*100, # 51 total taxa
                    NbFEs = 1,
                    NbFEsP = 1/22*100, # 22 total FE's
                    Vol8D = 0)
 Fric <- Fric %>%
   rbind(SeepFric)
 
-write_csv(Fric, here("Data", "Sp_FE_Vol.csv"))
 
 
 ## CALCULATE RESIDUALS AND SAVE CSV
 
 resFric <- Fric %>%
   left_join(meta) %>%
-  arrange(CowTagID)
+  arrange(CowTagID) %>%
+  group_by(CowTagID) %>%
+  mutate(hard_sub = sum(LiveCoral, DeadCoral, Rubble)) %>%
+  ungroup()
 
 # calculate residuals and join together
 resSp <- residuals(lm(data = resFric, NbSp ~ complexity))
@@ -349,7 +351,7 @@ sgd.sp.ma <- as.data.frame(sgd.sp.ma)
 
 ## Calculate convex hull (modified Teixido script)
 
-#### Calculate convex hull (Teixido script after I gave up at convhulln)
+#### Calculate convex hull
 
 ## NOT ENOUGH FE AMONGST CORALS PER LOCATION TO RUN AT EACH LOCATION
 # for entire site's corals
@@ -496,17 +498,15 @@ resFric.coral <- Fric.coral %>%
 # calculate residuals and join together
 resSp <- residuals(lm(data = resFric.coral, NbSp ~ complexity))
 resSpp <- residuals(lm(data = resFric.coral, NbSpP ~ complexity))
-resFE <- residuals(lm(data = resFric.coral, NbFEs ~ complexity)) # see Fig3_Fric_plot_lm_and_residuals.R for linear relationship
-resFEp <- residuals(lm(data = resFric.coral, NbFEsP ~ complexity)) # see Fig3_Fric_plot_lm_and_residuals.R for linear relationship
-# resVol <- residuals(lm(data = resFric.coral, Vol8D ~ complexity))
+resFE <- residuals(lm(data = resFric.coral, NbFEs ~ complexity))
+resFEp <- residuals(lm(data = resFric.coral, NbFEsP ~ complexity))
 resFric.coral <- resFric.coral %>%
   cbind(resSp) %>%
   cbind(resSpp) %>%
   cbind(resFE) %>%
   cbind(resFEp) %>%
-  # cbind(resVol) %>%
-  select(CowTagID, NbSp, NbSpP, NbFEs, NbFEsP, #Vol8D,
-         resSp, resSpp, resFE, resFEp, #resVol
+  select(CowTagID, NbSp, NbSpP, NbFEs, NbFEsP,
+         resSp, resSpp, resFE, resFEp
          )
 
 resFric.ma <- Fric.ma %>%
@@ -515,21 +515,19 @@ resFric.ma <- Fric.ma %>%
   select(CowTagID:Vol8D, complexity)
 
 # calculate residuals and join together
-resSp <- residuals(lm(data = resFric.ma, NbSp ~ poly(complexity,2))) # see Fig3_Fric_plot_lm_and_residuals.R for polynomial relationship
-resSpp <- residuals(lm(data = resFric.ma, NbSpP ~ poly(complexity,2))) # see Fig3_Fric_plot_lm_and_residuals.R for polynomial relationship
+resSp <- residuals(lm(data = resFric.ma, NbSp ~ poly(complexity,2)))
+resSpp <- residuals(lm(data = resFric.ma, NbSpP ~ poly(complexity,2)))
 resFE <- residuals(lm(data = resFric.ma, NbFEs ~ complexity))
 resFEp <- residuals(lm(data = resFric.ma, NbFEsP ~ complexity))
-# resVol <- residuals(lm(data = resFric.ma, Vol8D ~ complexity))
 resFric.ma <- resFric.ma %>%
   cbind(resSp) %>%
   cbind(resSpp) %>%
   cbind(resFE) %>%
   cbind(resFEp) %>%
-  # cbind(resVol) %>%
-  select(CowTagID, NbSp, NbSpP, NbFEs, NbFEsP, #Vol8D,
-         resSp, resSpp, resFE, resFEp, #resVol
+  select(CowTagID, NbSp, NbSpP, NbFEs, NbFEsP,
+         resSp, resSpp, resFE, resFEp
   )
 
 
-write_csv(resFric.ma, here("Data", "Sp_FE_Vol_res_macroalgae.csv"))
-write_csv(resFric.coral, here("Data", "Sp_FE_Vol_res_coral.csv"))
+write_csv(resFric.ma, here("Data", "Sp_FE_res_macroalgae.csv"))
+write_csv(resFric.coral, here("Data", "Sp_FE_res_coral.csv"))
