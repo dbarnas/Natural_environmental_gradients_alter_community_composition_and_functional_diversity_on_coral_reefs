@@ -9,7 +9,7 @@
 ###############################
 library(tidyverse)
 library(here)
-
+library(patchwork)
 
 
 
@@ -35,14 +35,22 @@ resFric %>%
   mutate(FE_SP = NbFEs / NbSp) %>%
   select(CowTagID,NbFEs, NbSp, FE_SP)
 
-### Stats
-# w/o seep, p > 0.2
-anova(lm(data = resFric %>% mutate(FE_SP = NbFEs / NbSp) %>% filter(CowTagID != "VSEEP"),
-         FE_SP ~ Phosphate_umolL))
 
-# with seep p < 0.005
+
+###############################
+# STATS
+###############################
+# without seepage point, NS
+anova(lm(data = resFric %>% mutate(FE_SP = NbFEs / NbSp) %>% filter(CowTagID != "VSEEP"),
+         FE_SP ~ Phosphate_umolL)) # p > 0.2
+anova(lm(data = resFric %>% mutate(FE_SP = NbFEs / NbSp) %>% filter(CowTagID != "VSEEP"),
+         FE_SP ~ NN_umolL)) # p > 0.1
+
+# with seep
 anova(lm(data = resFric %>% mutate(FE_SP = NbFEs / NbSp),
-         FE_SP ~ Phosphate_umolL))
+         FE_SP ~ Phosphate_umolL)) # p < 0.002
+anova(lm(data = resFric %>% mutate(FE_SP = NbFEs / NbSp),
+         FE_SP ~ NN_umolL)) # p < 0.0009
 
 
 ###############################
@@ -52,7 +60,7 @@ anova(lm(data = resFric %>% mutate(FE_SP = NbFEs / NbSp),
 ### Without seepage point
 pRat <- resFric %>%
   filter(CowTagID != "VSEEP") %>%
-  ggplot(aes(x = Phosphate_umolL,
+  ggplot(aes(x = NN_umolL, # Phosphate_umolL
              y = NbFEs / NbSp)) +
   geom_point(size = 2.5) +
   #geom_smooth(method = "lm", formula = "y~x", color = "black") +
@@ -65,7 +73,7 @@ pRat <- resFric %>%
 
 ### With seepage point
 pRatSeep <- resFric %>%
-  ggplot(aes(x = Phosphate_umolL,
+  ggplot(aes(x = NN_umolL, # Phosphate_umolL # NN_umolL
              y = NbFEs / NbSp)) +
   geom_point(size = 2.5) +
   geom_hline(yintercept = 1, linetype = "dashed") +
@@ -75,7 +83,7 @@ pRatSeep <- resFric %>%
         axis.text = element_text(size = 12)) +
   theme(panel.grid = element_blank()) +
   labs(y = "FE richness / Taxon richness",
-       x = expression("CV Phosphate (%)"))
+       x = expression("CV Nitrate+Nitrite (%)"))
 
 ### Patch
 SpFERatio <- (pRat / pRatSeep) +
@@ -84,5 +92,5 @@ SpFERatio <- (pRat / pRatSeep) +
 SpFERatio
 
 #### save plots
-ggsave(here("Output", "PaperFigures", "Supp_Fig4_SP_FER_Ratio.png"), SpFERatio, width = 6, height = 6, device = "png")
+ggsave(here("Output", "Supp_Fig5_SP_FER_Ratio.png"), SpFERatio, width = 6, height = 6, device = "png")
 

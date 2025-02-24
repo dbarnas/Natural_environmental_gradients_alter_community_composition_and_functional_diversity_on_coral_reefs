@@ -16,7 +16,7 @@ library(kableExtra)
 ###############################
 # READ IN DATA
 ###############################
-modelTable <- read_csv(here("Output", "PaperFigures","Model_Selection_Table.csv"))
+modelTable <- read_csv(here("Output", "Model_Selection_Table.csv"))
 
 
 modTable <- modelTable %>%  
@@ -30,11 +30,11 @@ modTable <- modelTable %>%
          'Delta AICc' = delAICc) %>% 
   separate(col=Parameter, into = c("Parameter", NA), sep = " +") %>% 
   mutate(Parameter = if_else(Parameter == "Phosphate_umolL", "Phosphate", 
-                             if_else(Parameter == "Silicate_umolL", "Silicate",
-                                     if_else(Parameter == "NN_umolL", "Nitrate+Nitrite", Parameter)))) %>% 
+                     if_else(Parameter == "Silicate_umolL", "Silicate",
+                     if_else(Parameter == "NN_umolL", "Nitrate+Nitrite", Parameter)))) %>% 
   mutate(Y = factor(Y, levels = c("NbSpP", "NbFEsP", "Vol8D", "resSpp", "resFEp", "resVol")),
          Parameter = factor(Parameter,
-                            levels = c("Rugosity", "Phosphate", "Nitrate+Nitrite", "pH", "Salinity", "Silicate", "Temperature"))) %>% 
+                            levels = c("Complexity", "Phosphate", "Nitrate+Nitrite", "pH", "Salinity", "Silicate", "Temperature"))) %>% 
   arrange(Y,`Delta AICc`) 
 ```
 ```{r}
@@ -50,14 +50,14 @@ AICtable <- modTable %>%
   row_spec(0, italic = TRUE, bold = TRUE) %>%  # header row
   pack_rows("% Taxon richness", 1, 14) %>%
   pack_rows("% FE richness", 15, 28) %>%
-  pack_rows("% FE volume", 29, 42) %>%
+  # pack_rows("% FE volume", 29, 42) %>%
   column_spec(1:6, background = "white")
 
 AICtable
 ```
 ```{r, eval = FALSE}
 AICtable %>% 
-  as_image(file = here("Output", "PaperFigures", "AICtable.png"))
+  as_image(file = here("Output", "AICtable.png"))
 ```
 ```{r}
 ###############################
@@ -79,5 +79,129 @@ AICtable_residuals
 ```
 ```{r, eval = FALSE}
 AICtable_residuals %>% 
-  as_image(file = here("Output", "PaperFigures", "AICtable_residuals.png"))
+  as_image(file = here("Output", "AICtable_residuals.png"))
+```
+
+
+```{r}
+###############################
+# CORAL DATA TABLE
+###############################
+modTable.coral <- read_csv(here("Output", "Model_Selection_Table_Coral.csv"))
+
+modTable.coral <- modTable.coral %>%  
+  rename(pVal = pVal.P) %>% 
+  mutate(AICc = round(AICc, 1)) %>% 
+  mutate(delAICc = round(delAICc, 1)) %>% 
+  mutate(R2 = if_else(R2 > 0.1, round(R2,2), round(R2, 3))) %>% 
+  mutate(pVal = signif(pVal, 2)) %>% 
+  rename(Regression = Reg_Type,
+         p = pVal,
+         'Delta AICc' = delAICc) %>% 
+  separate(col=Parameter, into = c("Parameter", NA), sep = " +") %>% 
+  mutate(Parameter = if_else(Parameter == "Phosphate_umolL", "Phosphate", 
+                     if_else(Parameter == "Silicate_umolL", "Silicate",
+                     if_else(Parameter == "NN_umolL", "Nitrate+Nitrite", Parameter)))) %>% 
+  mutate(Y = factor(Y, levels = c("NbSpP", "NbFEsP", "Vol8D", "resSpp", "resFEp", "resVol")),
+         Parameter = factor(Parameter,
+                            levels = c("Complexity", "Phosphate", "Nitrate+Nitrite", "pH", "Salinity", "Silicate", "Temperature"))) %>% 
+  arrange(Y,`Delta AICc`) 
+
+AICtable_coral <- modTable.coral %>%
+  filter(Y== "NbSpP" | Y== "NbFEsP") %>%
+  select(-Y) %>% 
+  kbl() %>% 
+  kable_classic(html_font = "Times New Roman",
+                font_size = 20) %>% 
+  row_spec(0, italic = TRUE, bold = TRUE) %>%  # header row
+  pack_rows("% Taxon richness", 1, 14) %>%
+  pack_rows("% FE richness", 15, 28) %>%
+  # pack_rows("% FE volume (residuals)", 29, 42) %>%
+  column_spec(1:6, background = "white")
+
+AICtable_coral_res <- modTable.coral %>%
+  filter(Y== "resSpp" | Y== "resFEp") %>%
+  select(-Y) %>% 
+  kbl() %>% 
+  kable_classic(html_font = "Times New Roman",
+                font_size = 20) %>% 
+  row_spec(0, italic = TRUE, bold = TRUE) %>%  # header row
+  pack_rows("% Taxon richness (residuals)", 1, 12) %>%
+  pack_rows("% FE richness (residuals)", 13, 24) %>%
+  # pack_rows("% FE volume (residuals)", 29, 42) %>%
+  column_spec(1:6, background = "white")
+
+AICtable_coral
+AICtable_coral_res
+```
+
+```{r, eval = FALSE}
+AICtable_coral %>% 
+  as_image(file = here("Output", "AICtable_coral.png"))
+```
+
+```{r, eval = FALSE}
+AICtable_coral_res %>% 
+  as_image(file = here("Output", "AICtable_coral_res.png"))
+```
+
+
+
+```{r}
+###############################
+# MACROALGAE DATA TABLE
+###############################
+modTable.ma <- read_csv(here("Output", "Model_Selection_Table_MA.csv"))
+
+modTable.ma <- modTable.ma %>%  
+  rename(pVal = pVal.P) %>% 
+  mutate(AICc = round(AICc, 1)) %>% 
+  mutate(delAICc = round(delAICc, 1)) %>% 
+  mutate(R2 = if_else(R2 > 0.1, round(R2,2), round(R2, 3))) %>% 
+  mutate(pVal = signif(pVal, 2)) %>% 
+  rename(Regression = Reg_Type,
+         p = pVal,
+         'Delta AICc' = delAICc) %>% 
+  separate(col=Parameter, into = c("Parameter", NA), sep = " +") %>% 
+  mutate(Y = factor(Y, levels = c("NbSpP", "NbFEsP", "Vol8D", "resSpp", "resFEp", "resVol")),
+         Parameter = factor(Parameter,
+                            levels = c("Complexity", "Phosphate", "Nitrate+Nitrite", "pH", "Salinity", "Silicate", "Temperature"))) %>% 
+  arrange(Y,`Delta AICc`) 
+
+AICtable_ma <- modTable.ma %>%
+  filter(Y== "NbSpP" | Y== "NbFEsP") %>%
+  select(-Y) %>% 
+  kbl() %>% 
+  kable_classic(html_font = "Times New Roman",
+                font_size = 20) %>% 
+  row_spec(0, italic = TRUE, bold = TRUE) %>%  # header row
+  pack_rows("% Taxon richness", 1, 14) %>%
+  pack_rows("% FE richness", 15, 28) %>%
+  # pack_rows("% FE volume", 29, 42) %>%
+  column_spec(1:6, background = "white")
+
+AICtable_ma_res <- modTable.ma %>%
+  filter(Y== "resSpp" | Y== "resFEp") %>%
+  select(-Y) %>% 
+  kbl() %>% 
+  kable_classic(html_font = "Times New Roman",
+                font_size = 20) %>% 
+  row_spec(0, italic = TRUE, bold = TRUE) %>%  # header row
+  pack_rows("% Taxon richness (residuals)", 1, 12) %>%
+  pack_rows("% FE richness (residuals)", 13, 24) %>%
+  # pack_rows("% FE volume (residuals)", 29, 42) %>%
+  column_spec(1:6, background = "white")
+
+AICtable_ma
+AICtable_ma_res
+```
+
+```{r, eval = FALSE}
+AICtable_ma %>% 
+  as_image(file = here("Output", "AICtable_macroalgae.png"))
+```
+
+```{r, eval = FALSE}
+AICtable_ma_res %>% 
+  as_image(file = here("Output", "AICtable_macroalgae_res.png"))
 ```

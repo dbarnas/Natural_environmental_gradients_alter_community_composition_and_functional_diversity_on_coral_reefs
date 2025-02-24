@@ -1,4 +1,4 @@
-#### Supplemental Figure 6: Stacked bar plot of proportional substrate at each
+#### Supplemental Figure 4: Stacked bar plot of proportional substrate at each
 #### survey site, ordered by increasing CV phosphate.
 
 ### Created by Danielle Barnas
@@ -17,7 +17,7 @@ library(PNWColors)
 ### READ IN DATA
 ############################
 sub <- read_csv(here("Data", "Surveys", "Substrate_2022.csv"))
-alpha <- read_csv(here("Data", "CowTag_to_AlphaTag.csv"))
+alpha <- read_csv(here("Data","Full_Metadata.csv")) %>% select(CowTagID, AlphaTag)
 chem <- read_csv(here("Data", "Biogeochem", "Nutrients_Processed_All.csv"))
 
 
@@ -35,8 +35,8 @@ sub <- sub %>%
 
 chem <- chem %>%
   right_join(alpha) %>%
-  select(AlphaTag, Phosphate_umolL) %>%
-  arrange(Phosphate_umolL)
+  select(AlphaTag, Phosphate_umolL, NN_umolL) %>%
+  arrange(NN_umolL)
 myorder <- chem$AlphaTag
 
 sub <- sub %>%
@@ -65,4 +65,4 @@ subPlot <- sub %>%
 subPlot
 
 
-ggsave(here("Output", "PaperFigures", "Supp_Fig5_Substrate.png"), subPlot, device = "png", width = 6, height = 6)
+ggsave(here("Output", "Supp_Fig4_Substrate.png"), subPlot, device = "png", width = 6, height = 6)

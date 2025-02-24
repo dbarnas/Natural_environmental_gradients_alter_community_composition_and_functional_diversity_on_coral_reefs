@@ -60,7 +60,7 @@ TraitTable
 ```
 ```{r, eval = FALSE}
 TraitTable %>% 
-  as_image(file = here("Output", "PaperFigures", "Table1_FunctionalGroups.png"))
+  as_image(file = here("Output", "Table1_FunctionalGroups.png"))
 ```
 
 

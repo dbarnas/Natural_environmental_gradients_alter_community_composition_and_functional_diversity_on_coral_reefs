@@ -87,7 +87,7 @@ speciesTable2 <- sp2 %>%
 ```
 ```{r, eval = FALSE}
 speciesTable1 %>%
-  as_image(file = here("Output", "PaperFigures", "SpeciesTable1.png"))
+  as_image(file = here("Output", "SpeciesTable1.png"))
 speciesTable2 %>%
-  as_image(file = here("Output", "PaperFigures", "SpeciesTable2.png"))
+  as_image(file = here("Output", "SpeciesTable2.png"))
 ```

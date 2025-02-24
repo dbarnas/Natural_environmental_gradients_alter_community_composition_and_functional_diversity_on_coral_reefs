@@ -20,7 +20,6 @@ library(tidytext)
 ###############################
 # READ IN DATA
 ###############################
-Fric <- read_csv(here("Data", "Sp_FE_Vol.csv"))
 resFric <- read_csv(here("Data", "Sp_FE_Vol_res.csv"))
 meta <- read_csv(here("Data", "Full_Metadata.csv"))
 chem <- read_csv(here("Data","Biogeochem", "Nutrients_Processed_All.csv")) %>%
@@ -33,14 +32,13 @@ reg.Fric <- resFric %>%
   as_tibble() %>%
   left_join(meta) %>%
   filter(CowTagID != "VSEEP" &
-           CowTagID != "V13") %>%
-  mutate(meanRugosity = 1-meanRugosity)
+           CowTagID != "V13")
 
 
 
 
 ###############################
-# RESIDUAL MODELS (~ RUGOSITY)
+# RESIDUAL MODELS (~ COMPLEDITY)
 ###############################
 resFric <- reg.Fric %>%
   left_join(chem)
@@ -64,13 +62,13 @@ supp2A <- resFric %>%
   select(-TA) %>%
   pivot_longer(cols = c(Salinity:NN_umolL), names_to = "Parameters", values_to = "Values") %>%
   mutate(Parameters = factor(Parameters, levels = c('NN_umolL', 'Phosphate_umolL', 'Silicate_umolL', 'Salinity', 'pH', 'Temperature'))) %>%
-  ggplot(aes(x = Values, y = meanRugosity)) +
+  ggplot(aes(x = Values, y = complexity)) +
   geom_point() +
   geom_smooth(method = "lm", formula = "y~x", color = "black") +
   geom_smooth(method = "lm", formula = "y~poly(x,2)", color = "red") +
   facet_wrap(~Parameters, scales = "free_x", labeller = parameter_labeller) +
   theme_bw() +
-  labs(x = "CV SGD Parameter Values", y = "% Mean rugosity") +
+  labs(x = "CV SGD Parameter Values", y = "% Mean complexity") +
   theme(strip.background = element_rect(fill = "white"),
         strip.text = element_text(size = 10),
         axis.text.x = element_text(angle = 30, hjust=1))
@@ -78,22 +76,21 @@ supp2A
 
 
 
-
 ### Supplemental Figure 2b:
 
-## plot richness and volume to rugosity
+## plot richness and volume to complexity
 supp2B <- resFric %>%
   rename('% Taxon Richness' = NbSpP, '% FE Richness' = NbFEsP, '% FE Volume' = Vol8D) %>%
   pivot_longer(cols = c('% Taxon Richness', '% FE Richness', '% FE Volume'), names_to = "Parameters", values_to = "Values") %>%
   mutate(Parameters = factor(Parameters, levels = c('% Taxon Richness', '% FE Richness', '% FE Volume'))) %>%
-  ggplot(aes(x = meanRugosity, y = Values)) +#, color = NN_umolL)) +
+  ggplot(aes(x = complexity, y = Values)) +#, color = NN_umolL)) +
   geom_point() +
   geom_smooth(method = "lm", color = "black", formula = "y~log(x)") +
   facet_wrap(~Parameters, scales = "free") +
   theme_bw() +
   theme(strip.background = element_rect(fill = "white"),
         strip.text = element_text(size = 10))+
-  labs(x = "Mean Rugosity",
+  labs(x = "Mean complexity",
        y = "Relative Diversity")
 supp2B
 
