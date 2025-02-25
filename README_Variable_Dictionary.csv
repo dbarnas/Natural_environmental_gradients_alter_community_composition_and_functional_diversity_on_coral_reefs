@@ -1,0 +1,38 @@
+Variable,Units,Description
+CowTagID,NA,Individual survey location identifier (1-20 and a Seep location)
+Taxa,NA,Benthic taxa observed at each survey site
+pcover,%,Proportional cover of each taxa at each survey site
+Taxon_Group,NA,Phyla of each taxon observed at each survey site
+Morph2,NA,Morphology of each taxon observed at each survey site
+Calc,NA,Calcification strategy of each taxon observed at each survey site
+ER,NA,Trophic group of each taxon observed at each survey site
+FE,NA,Functional entity of each taxon observed at each survey site; a compilation of the unique functional traits assigned to the taxon from each functional group
+PC1,NA,PCoA axis 1
+PC2,NA,PCoA axis 2
+PC3,NA,PCoA axis 3
+PC4,NA,PCoA axis 4
+Location,NA,Indicates the coral reef site (Varari)
+AlphaTag,NA,"Individual survey location identifier, alphabetized by linear distance from seepage point (Seep location, A, and B-T)"
+LiveCoral,%,Percent cover of live coral substrate
+DeadCoral,%,Percent cover of dead coral substrate
+Rubble,%,Percent cover of rubble substrate
+Sand,%,Percent cover of sand substrate
+lat,NA,Latitude of survey locations recorded on a Garmin GPS
+lon,NA,Longitude of survey locations recorded on a Garmin GPS
+meanRugosity,unitless,"Average rugosity measured using a 2.03m link chain across 3 randomly chosen lines within the survey box of each survey location. Values range from 0-1, with 0 indicating higher substrate complexity and 1 indicating a flat surface"
+complexity,unitless,Average rugosity subtracted from 1 as an indication of structural complexity of the reef surface
+Salinity,"psu, %",Raw values (psu) measured during the high and low tide in the day and nighttime; coefficient of variation (%) used for analyses
+Temperature,"°C, %",Raw values (°C) measured during the high and low tide in the day and nighttime at each survey location; coefficient of variation (%) used for analyses
+pH,"unitless, %",Raw values (unitless) measured during the high and low tide in the day and nighttime at each survey location; coefficient of variation (%) used for analyses
+Phosphate_umolL,"?mol/L, %",Raw values (?mol/L) measured during the high and low tide in the day and nighttime at each survey location; coefficient of variation (%) used for analyses
+Silicate_umolL,"?mol/L, %",Raw values (?mol/L) measured during the high and low tide in the day and nighttime at each survey location; coefficient of variation (%) used for analyses
+NN_umolL,"?mol/L, %",Raw values (?mol/L) measured during the high and low tide in the day and nighttime at each survey location; coefficient of variation (%) used for analyses
+NbSp,NA,Total tally of taxa per site
+NbSpP,%,Proportional taxonomic richness
+NbFEs,NA,Total tally of functional entities per site
+NbFEsP,%,Proportional functional entity richness
+resSp,NA,Complexity-normalized residuals of total taxonomic richness
+resSpp,%,Complexity-normalized residuals of proportional taxonomic richness
+resFE,NA,Complexity-normalized residuals of total functional entity richness
+resFEp,%,Complexity-normalized residuals of proportional functional entity richness
+Community,NA,"Indicates whether the diversity metrics are representative of the ""Full Community"", ""Stony Coral"", or ""Macroalgae"""
