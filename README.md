@@ -17,3 +17,5 @@ Coral reefs experience numerous natural and anthropogenic environmental gradient
 Processed and raw data can be found [here](Data/).  
 Scripts for data processing, analysis, and figures can be found [here](Scripts/).  
 Output figures and tables can be found [here](/Output).
+
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.14921068.svg)](https://doi.org/10.5281/zenodo.14921068)
